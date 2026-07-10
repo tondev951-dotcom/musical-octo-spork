@@ -1,0 +1,25 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background: #e9ebef;
+}
+
+button {
+  font-family: inherit;
+}
