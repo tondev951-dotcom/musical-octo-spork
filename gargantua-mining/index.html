@@ -36,60 +36,72 @@
   }
   #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 
-  /* ================= üst cüzdan çubuğu ================= */
+  /* ================= üst bar ================= */
   #topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 10;
-    padding: calc(var(--safe-top) + 10px) 14px 12px;
-    display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 30%, transparent);
+    padding: calc(var(--safe-top) + 8px) 12px 6px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85) 40%, transparent);
     pointer-events: none;
   }
-  #walletchip {
-    display: flex; align-items: center; gap: 7px;
-    padding: 7px 11px;
-    background: var(--glass);
-    border: 1px solid var(--line); border-radius: 999px;
-    font-size: 10px; letter-spacing: 1px; color: var(--mut);
-    /* blur kaldırıldı: zayıf GPU'larda WebGL ile çakışıyordu */
+  #toprow { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  #cmdbox { display: flex; align-items: center; gap: 8px; }
+  #lvlbadge {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1.5px solid var(--amber);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--amber);
+    background: rgba(20,12,4,0.7);
+    box-shadow: 0 0 10px rgba(255,179,92,0.3);
   }
-  #walletchip .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--ok); box-shadow: 0 0 8px var(--ok);
+  #cmdinfo .n { font-size: 9px; letter-spacing: 2px; color: var(--mut); }
+  #xpbar {
+    width: 84px; height: 4px; border-radius: 2px;
+    background: rgba(255,190,110,0.15); margin-top: 4px;
+    overflow: hidden;
   }
+  #xpfill { height: 100%; width: 0%; background: var(--cyan); transition: width 0.4s; }
   #balbox { text-align: right; }
-  #balbox .lbl { font-size: 9px; letter-spacing: 2.5px; color: var(--amber-dim); }
+  #balbox .lbl { font-size: 8.5px; letter-spacing: 2px; color: var(--amber-dim); }
   #balbox .val {
-    font-size: 21px; font-weight: 700; color: var(--amber);
+    font-size: 19px; font-weight: 700; color: var(--amber);
     text-shadow: 0 0 14px rgba(255,179,92,0.4);
     font-variant-numeric: tabular-nums;
   }
-  #balbox .val small { font-size: 11px; color: var(--amber-dim); font-weight: 400; }
-  #balbox .apr { font-size: 9.5px; color: var(--cyan); letter-spacing: 1px; }
+  #resstrip {
+    display: flex; gap: 5px; margin-top: 7px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  #resstrip::-webkit-scrollbar { display: none; }
+  .reschip {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    background: var(--glass);
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 9.5px; font-variant-numeric: tabular-nums;
+  }
+  .reschip .k { color: var(--mut); font-size: 8.5px; letter-spacing: 0.5px; }
 
   /* ================= claim hapı ================= */
   #claimpill {
     position: fixed; left: 50%; transform: translateX(-50%);
-    bottom: calc(var(--safe-bottom) + 78px);
+    bottom: calc(var(--safe-bottom) + 76px);
     z-index: 12;
     display: flex; align-items: center; gap: 12px;
-    padding: 11px 16px 11px 18px;
+    padding: 10px 14px 10px 17px;
     background: linear-gradient(135deg, rgba(28,18,8,0.92), rgba(14,10,20,0.92));
     border: 1px solid var(--line);
     border-radius: 999px;
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     box-shadow: 0 4px 30px rgba(0,0,0,0.6);
   }
-  #claimpill .accr { display: flex; flex-direction: column; }
-  #claimpill .accr .l { font-size: 8.5px; letter-spacing: 2px; color: var(--mut); }
-  #claimpill .accr .v {
-    font-size: 16px; font-weight: 700; color: var(--ink);
-    font-variant-numeric: tabular-nums;
-  }
+  #claimpill .accr .l { font-size: 8px; letter-spacing: 2px; color: var(--mut); }
+  #claimpill .accr .v { font-size: 13.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
   #claimbtn {
     white-space: nowrap;
-    padding: 10px 18px;
+    padding: 10px 16px;
     border: none; border-radius: 999px;
-    font-family: inherit; font-size: 11.5px; font-weight: 700; letter-spacing: 2px;
+    font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 2px;
     color: #1a0e02;
     background: linear-gradient(135deg, #ffd9a0, var(--amber) 60%, #e08830);
     box-shadow: 0 0 18px rgba(255,179,92,0.45);
@@ -103,121 +115,129 @@
   #tabbar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 14;
     display: flex;
-    padding: 8px 10px calc(var(--safe-bottom) + 10px);
-    background: linear-gradient(to top, rgba(0,0,0,0.92) 60%, transparent);
-    gap: 8px;
+    padding: 8px 8px calc(var(--safe-bottom) + 9px);
+    background: linear-gradient(to top, rgba(0,0,0,0.94) 60%, transparent);
+    gap: 6px;
   }
   .tab {
-    flex: 1; padding: 11px 4px;
+    flex: 1; padding: 10px 2px;
     background: var(--glass);
-    border: 1px solid var(--line); border-radius: 12px;
+    border: 1px solid var(--line); border-radius: 11px;
     color: var(--mut); font-family: inherit;
-    font-size: 10px; letter-spacing: 2px; font-weight: 700;
-    text-align: center;
-    /* blur yok: koyu gradyan üstünde zaten görünmüyor */
+    font-size: 8.5px; letter-spacing: 1px; font-weight: 700;
+    text-align: center; line-height: 1.5;
   }
+  .tab .ic { display: block; font-size: 14px; }
   .tab.active { color: var(--amber); border-color: rgba(255,190,110,0.45); background: var(--glass-hi); }
   .tab:active { transform: scale(0.97); }
+  .tab.alert { position: relative; }
+  .tab.alert::after {
+    content: ""; position: absolute; top: 5px; right: 8px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ok); box-shadow: 0 0 6px var(--ok);
+  }
 
   /* ================= panel (sheet) ================= */
   #sheet {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 13;
-    max-height: 66vh;
-    background: rgba(6, 8, 13, 0.96);
+    max-height: 70vh;
+    background: rgba(6, 8, 13, 0.97);
     border-top: 1px solid var(--line);
     border-radius: 20px 20px 0 0;
     transform: translateY(105%);
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     display: flex; flex-direction: column;
-    padding-bottom: calc(var(--safe-bottom) + 66px);
+    padding-bottom: calc(var(--safe-bottom) + 62px);
   }
   #sheet.open { transform: translateY(0); }
-  #sheet .grip {
-    width: 40px; height: 4px; border-radius: 2px;
-    background: rgba(255,190,110,0.25);
-    margin: 10px auto 2px;
-  }
+  #sheet .grip { width: 40px; height: 4px; border-radius: 2px; background: rgba(255,190,110,0.25); margin: 9px auto 2px; }
   #sheet h2 {
-    padding: 8px 18px 10px;
-    font-size: 12px; letter-spacing: 3px; color: var(--amber);
+    padding: 7px 16px 9px;
+    font-size: 11.5px; letter-spacing: 3px; color: var(--amber);
     display: flex; justify-content: space-between; align-items: center;
   }
   #sheet h2 .x { color: #666; font-size: 18px; padding: 2px 8px; }
   #panel {
     overflow-y: auto; -webkit-overflow-scrolling: touch;
-    padding: 2px 14px 16px;
-    display: flex; flex-direction: column; gap: 10px;
+    padding: 2px 12px 14px;
+    display: flex; flex-direction: column; gap: 9px;
     touch-action: pan-y;
   }
-
   .card {
-    border: 1px solid var(--line); border-radius: 14px;
+    border: 1px solid var(--line); border-radius: 13px;
     background: var(--glass-hi);
-    padding: 13px;
+    padding: 12px;
   }
-  .card .rowline { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .card.locked { opacity: 0.5; }
+  .rowline { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .tag {
-    font-size: 8.5px; letter-spacing: 1.5px; font-weight: 700;
-    padding: 3px 8px; border-radius: 999px;
+    font-size: 8px; letter-spacing: 1.2px; font-weight: 700;
+    padding: 3px 8px; border-radius: 999px; white-space: nowrap;
   }
-  .tag.mining   { color: var(--ok); border: 1px solid rgba(92,232,164,0.4); }
-  .tag.damaged  { color: var(--danger); border: 1px solid rgba(255,92,74,0.45); animation: blink 1s steps(2) infinite; }
+  .tag.mining { color: var(--ok); border: 1px solid rgba(92,232,164,0.4); }
+  .tag.damaged { color: var(--danger); border: 1px solid rgba(255,92,74,0.45); animation: blink 1s steps(2) infinite; }
   .tag.expedition { color: var(--violet); border: 1px solid rgba(168,140,255,0.45); }
+  .tag.busy { color: var(--cyan); border: 1px solid rgba(111,216,236,0.45); }
+  .tag.done { color: var(--ok); border: 1px solid rgba(92,232,164,0.4); }
+  .tag.lock { color: var(--mut); border: 1px solid rgba(150,140,120,0.3); }
   @keyframes blink { 50% { opacity: 0.4; } }
-
-  .rig-name { font-size: 12px; font-weight: 700; letter-spacing: 1px; }
-  .rig-sub  { font-size: 9.5px; color: var(--mut); margin-top: 3px; line-height: 1.6; }
-  .rig-acc  { font-size: 13px; color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 700; }
-  .btnrow { display: flex; gap: 8px; margin-top: 10px; }
+  .tname { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; }
+  .tsub { font-size: 9px; color: var(--mut); margin-top: 3px; line-height: 1.6; }
+  .thi { color: var(--amber); font-variant-numeric: tabular-nums; }
+  .btnrow { display: flex; gap: 7px; margin-top: 9px; flex-wrap: wrap; }
   .sbtn {
-    flex: 1; padding: 9px 6px;
+    flex: 1; min-width: 90px; padding: 9px 6px;
     border: 1px solid var(--line); border-radius: 9px;
     background: transparent; color: var(--ink);
-    font-family: inherit; font-size: 9.5px; letter-spacing: 1px; font-weight: 700;
+    font-family: inherit; font-size: 9px; letter-spacing: 0.8px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
   .sbtn.primary { border-color: var(--amber-dim); color: var(--amber); background: rgba(255,179,92,0.08); }
-  .sbtn.danger  { border-color: rgba(255,92,74,0.5); color: var(--danger); }
-  .sbtn.violet  { border-color: rgba(168,140,255,0.5); color: var(--violet); }
+  .sbtn.danger { border-color: rgba(255,92,74,0.5); color: var(--danger); }
+  .sbtn.violet { border-color: rgba(168,140,255,0.5); color: var(--violet); }
+  .sbtn.cyan { border-color: rgba(111,216,236,0.5); color: var(--cyan); }
   .sbtn:disabled { opacity: 0.35; }
   .sbtn:not(:disabled):active { background: rgba(255,255,255,0.08); }
-
-  /* kuşak kartları */
-  .band-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .band-name { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; }
-  .band-stats {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px; margin-top: 9px;
-  }
+  .stats3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
   .stat { border-left: 2px solid var(--line); padding-left: 7px; }
-  .stat .k { font-size: 8px; letter-spacing: 1.5px; color: var(--mut); }
-  .stat .v { font-size: 12px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
-
-  /* cüzdan */
-  #panel .big {
-    font-size: 26px; font-weight: 700; color: var(--amber);
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 16px rgba(255,179,92,0.35);
+  .stat .k { font-size: 7.5px; letter-spacing: 1.2px; color: var(--mut); }
+  .stat .v { font-size: 11px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .prog {
+    height: 5px; border-radius: 3px;
+    background: rgba(255,190,110,0.12);
+    overflow: hidden; margin-top: 8px;
+  }
+  .prog i { display: block; height: 100%; background: var(--cyan); border-radius: 3px; }
+  .secthead {
+    font-size: 9.5px; letter-spacing: 2.5px; color: var(--mut);
+    margin: 8px 2px 0;
+    display: flex; justify-content: space-between; align-items: baseline;
   }
   .ledger-item {
     display: flex; justify-content: space-between; gap: 8px;
-    padding: 9px 2px;
+    padding: 8px 2px;
     border-bottom: 1px dashed rgba(255,190,110,0.12);
-    font-size: 10px;
+    font-size: 9.5px;
   }
-  .ledger-item .h { color: var(--mut); font-size: 8.5px; margin-top: 3px; letter-spacing: 0.5px; }
+  .ledger-item .h { color: var(--mut); font-size: 8px; margin-top: 2px; }
   .ledger-item .amt { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
   .amt.plus { color: var(--ok); }
   .amt.minus { color: var(--danger); }
+  .tierhead {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 9px; letter-spacing: 2px; color: var(--violet);
+    margin-top: 6px;
+  }
+  .tierhead::after { content: ""; flex: 1; height: 1px; background: rgba(168,140,255,0.25); }
 
-  /* ================= toast & olay akışı ================= */
+  /* ================= toast ================= */
   #toast {
-    position: fixed; top: calc(var(--safe-top) + 66px); left: 50%;
+    position: fixed; top: calc(var(--safe-top) + 92px); left: 50%;
     transform: translateX(-50%);
     max-width: 88vw; z-index: 30;
-    padding: 10px 16px;
+    padding: 9px 15px;
     background: var(--glass); border: 1px solid var(--line); border-radius: 11px;
-    font-size: 10.5px; line-height: 1.6; text-align: center;
-    /* blur kaldırıldı: geçici öğe, GPU katmanı açmaya değmez */
+    font-size: 10px; line-height: 1.6; text-align: center;
     opacity: 0; transition: opacity 0.3s; pointer-events: none;
   }
   #toast.show { opacity: 1; }
@@ -229,22 +249,18 @@
     background: radial-gradient(ellipse at 50% 62%, rgba(32,19,8,0.92), rgba(0,0,0,0.98));
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 16px; padding: 26px; text-align: center;
+    gap: 15px; padding: 26px; text-align: center;
     transition: opacity 0.6s;
   }
   #connect.hide { opacity: 0; pointer-events: none; }
   #connect .proto { font-size: 10px; letter-spacing: 5px; color: var(--cyan); }
   #connect h1 {
-    font-size: 28px; letter-spacing: 7px; font-weight: 700; color: var(--amber);
+    font-size: 27px; letter-spacing: 7px; font-weight: 700; color: var(--amber);
     text-shadow: 0 0 34px rgba(255,140,60,0.55);
   }
-  #connect p { font-size: 11.5px; color: #a89e90; max-width: 330px; line-height: 1.85; }
-  #connect .addr {
-    display: none;
-    font-size: 11px; color: var(--ok); letter-spacing: 1px;
-    padding: 8px 14px; border: 1px dashed rgba(92,232,164,0.4); border-radius: 9px;
-  }
-  #connect .offline { display: none; font-size: 10.5px; color: var(--cyan); line-height: 1.7; }
+  #connect p { font-size: 11px; color: #a89e90; max-width: 330px; line-height: 1.85; }
+  #connect .addr { display: none; font-size: 10.5px; color: var(--ok); padding: 8px 14px; border: 1px dashed rgba(92,232,164,0.4); border-radius: 9px; }
+  #connect .offline { display: none; font-size: 10px; color: var(--cyan); line-height: 1.7; }
   #connectBtn {
     margin-top: 6px; padding: 15px 40px;
     background: transparent;
@@ -262,7 +278,6 @@
     vertical-align: -2px; margin-right: 8px;
   }
   @keyframes rot { to { transform: rotate(360deg); } }
-
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
@@ -273,26 +288,36 @@
 <canvas id="gl"></canvas>
 
 <div id="topbar">
-  <div id="walletchip"><span class="dot"></span><span id="addr">bağlı değil</span></div>
-  <div id="balbox">
-    <div class="lbl">⬡ GRAV BAKİYE</div>
-    <div class="val"><span id="bal">0.0000</span> <small>GRAV</small></div>
-    <div class="apr" id="netapr">filo verimi +0.0000/sn</div>
+  <div id="toprow">
+    <div id="cmdbox">
+      <div id="lvlbadge">1</div>
+      <div id="cmdinfo">
+        <div class="n">KOMUTAN · <span id="ksname">ADAY</span></div>
+        <div id="xpbar"><div id="xpfill"></div></div>
+      </div>
+    </div>
+    <div id="balbox">
+      <div class="lbl">⬡ GRAV</div>
+      <div class="val" id="bal">0</div>
+    </div>
   </div>
+  <div id="resstrip"></div>
 </div>
 
 <div id="claimpill">
   <div class="accr">
-    <span class="l">BİRİKEN</span>
-    <span class="v">⬡ <span id="accrued">0.0000</span></span>
+    <div class="l">DİSKTE BİRİKEN</div>
+    <div class="v" id="accrued">—</div>
   </div>
-  <button id="claimbtn" disabled>TALEP ET</button>
+  <button id="claimbtn" disabled>HASADI AL</button>
 </div>
 
 <div id="tabbar">
-  <button class="tab" data-tab="fleet">🛰 FİLO</button>
-  <button class="tab" data-tab="orbits">◎ YÖRÜNGE</button>
-  <button class="tab" data-tab="wallet">⬡ CÜZDAN</button>
+  <button class="tab" data-tab="fleet"><span class="ic">🛰</span>FİLO</button>
+  <button class="tab" data-tab="orbits"><span class="ic">◎</span>YÖRÜNGE</button>
+  <button class="tab" data-tab="refinery"><span class="ic">⚗</span>RAFİNERİ</button>
+  <button class="tab" data-tab="market"><span class="ic">⇄</span>PAZAR</button>
+  <button class="tab" data-tab="base"><span class="ic">▣</span>ÜS</button>
 </div>
 
 <div id="sheet">
@@ -304,12 +329,12 @@
 <div id="toast"></div>
 
 <div id="connect">
-  <div class="proto">GRAV PROTOKOLÜ · v2 TESTNET</div>
+  <div class="proto">GRAV PROTOKOLÜ · v3 TESTNET</div>
   <h1>GARGANTUA</h1>
-  <p>Dev kara deliğin akresyon diskine sondaj filosu konuşlandır.
-     Derin yörünge daha çok ⬡ GRAV üretir — ama kütleçekim fırtınaları
-     sondajlarını vurabilir ve zaman, Dünya'dakilerden yavaş akar.
-     Madencilik tamamen pasif: stratejini kur, protokol çalışsın.</p>
+  <p>Kara deliğin diskinden su buzu, Helyum-3 ve platin grubu metaller çıkar;
+     ergosferden Penrose süreciyle enerji hasat et. Rafine et, pazarda sat,
+     kontratları doldur, teknoloji ağacında kuantum çağına ulaş.
+     Madencilik pasif — strateji senin.</p>
   <div class="addr" id="connAddr"></div>
   <div class="offline" id="offlineMsg"></div>
   <button id="connectBtn"><span class="spin"></span><span class="t">CÜZDAN BAĞLA</span></button>
@@ -320,199 +345,147 @@
 
 /* ================================================================
    GARGANTUA — WebGL kara delik (foton jeodeziği yaklaşımı)
-   + dolu maden kuşakları: renkli halkalar ve yörüngede dönen
-     sondaj ışıltıları shader içinde çizilir.
    ================================================================ */
 const canvas = document.getElementById("gl");
 const gl = canvas.getContext("webgl", { antialias: false, alpha: false, depth: false, stencil: false })
         || canvas.getContext("experimental-webgl");
 
 const VERT = `attribute vec2 aPos; void main(){ gl_Position = vec4(aPos,0.,1.); }`;
-
 const FRAG = `
 precision highp float;
-
 uniform vec2  uRes;
 uniform float uTime;
 uniform float uCamYaw;
 uniform float uCamPitch;
-uniform vec4  uBands;   /* kuşak doluluk yoğunluğu 0..1 (dış→iç) */
-uniform float uEvent;   /* fırtına flaşı 0..1 */
-uniform float uClaim;   /* claim dalgası 0..1 */
+uniform vec4  uBands;
+uniform float uEvent;
+uniform float uClaim;
 uniform float uSteps;
-
 #define RS 1.0
 #define DISK_IN  2.6
 #define DISK_OUT 9.0
-
-float hash12(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.x + p3.y) * p3.z);
-}
-float noise(vec2 p) {
-  vec2 i = floor(p), f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  float a = hash12(i), b = hash12(i + vec2(1.,0.));
-  float c = hash12(i + vec2(0.,1.)), d = hash12(i + vec2(1.,1.));
-  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
-}
-float fbm(vec2 p) {
-  float v = 0.0, a = 0.55;
-  for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.13 + vec2(7.7,3.1); a *= 0.5; }
-  return v;
-}
-
-vec3 stars(vec3 rd) {
-  vec3 col = vec3(0.0);
-  vec2 uv = vec2(atan(rd.z, rd.x), asin(clamp(rd.y,-1.,1.)));
-  for (int l = 0; l < 2; l++) {
-    float scale = l == 0 ? 90.0 : 160.0;
-    vec2 grid = uv * scale;
-    vec2 id = floor(grid);
-    float h = hash12(id + float(l) * 17.0);
-    vec2 c = fract(grid) - 0.5;
-    float star = smoothstep(0.08, 0.0, length(c + (vec2(h, fract(h*57.0)) - 0.5) * 0.6));
-    float bright = step(0.985, h) * (0.4 + 0.6 * fract(h * 91.0));
-    vec3 tint = mix(vec3(0.7,0.8,1.0), vec3(1.0,0.85,0.7), fract(h*33.0));
-    col += star * bright * tint;
+float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+  float a=hash12(i),b=hash12(i+vec2(1.,0.)),c=hash12(i+vec2(0.,1.)),d=hash12(i+vec2(1.,1.));
+  return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
+float fbm(vec2 p){float v=0.0,a=0.55;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.13+vec2(7.7,3.1);a*=0.5;}return v;}
+vec3 stars(vec3 rd){
+  vec3 col=vec3(0.0);
+  vec2 uv=vec2(atan(rd.z,rd.x),asin(clamp(rd.y,-1.,1.)));
+  for(int l=0;l<2;l++){
+    float scale=l==0?90.0:160.0;
+    vec2 grid=uv*scale;vec2 id=floor(grid);
+    float h=hash12(id+float(l)*17.0);
+    vec2 c=fract(grid)-0.5;
+    float star=smoothstep(0.08,0.0,length(c+(vec2(h,fract(h*57.0))-0.5)*0.6));
+    float bright=step(0.985,h)*(0.4+0.6*fract(h*91.0));
+    vec3 tint=mix(vec3(0.7,0.8,1.0),vec3(1.0,0.85,0.7),fract(h*33.0));
+    col+=star*bright*tint;
   }
-  col += vec3(0.012,0.014,0.02) * fbm(uv * 4.0);
+  col+=vec3(0.012,0.014,0.02)*fbm(uv*4.0);
   return col;
 }
-
-float wrapPi(float x) { return mod(x + 3.14159265, 6.2831853) - 3.14159265; }
-
-/* kuşak yarıçapları: dış → iç */
-float bandR(int k) {
-  if (k == 0) return 8.0;
-  if (k == 1) return 6.2;
-  if (k == 2) return 4.4;
-  return 3.05;
+float wrapPi(float x){return mod(x+3.14159265,6.2831853)-3.14159265;}
+float bandR(int k){if(k==0)return 8.0;if(k==1)return 6.2;if(k==2)return 4.4;return 3.05;}
+vec3 bandTint(int k){
+  if(k==0)return vec3(0.35,0.95,0.65);
+  if(k==1)return vec3(0.42,0.85,1.00);
+  if(k==2)return vec3(0.66,0.55,1.00);
+  return vec3(1.00,0.45,0.55);
 }
-vec3 bandTint(int k) {
-  if (k == 0) return vec3(0.35, 0.95, 0.65);   /* yeşilimsi — güvenli */
-  if (k == 1) return vec3(0.42, 0.85, 1.00);   /* camgöbeği */
-  if (k == 2) return vec3(0.66, 0.55, 1.00);   /* menekşe */
-  return vec3(1.00, 0.45, 0.55);               /* kızıl — foton sınırı */
-}
-
-vec3 diskShade(vec3 p, vec3 rd, out float alpha) {
-  float r = length(p.xz);
-  float t = clamp((r - DISK_IN) / (DISK_OUT - DISK_IN), 0.0, 1.0);
-
-  float omega = 1.6 / (pow(r, 1.5) + 0.2);
-  float theta = atan(p.z, p.x);
-  float ang = theta - uTime * omega;
-
-  float bands = fbm(vec2(r * 3.0, ang * 5.0));
-  float streaks = fbm(vec2(r * 9.0 - uTime * 0.15, ang * 14.0));
-  float density = bands * 0.7 + streaks * 0.5;
-  density *= smoothstep(1.0, 0.75, t);
-  density *= smoothstep(0.0, 0.12, t) + 0.35;
-
-  vec3 hot  = vec3(1.35, 1.22, 1.05);
-  vec3 mid  = vec3(1.30, 0.72, 0.28);
-  vec3 cool = vec3(0.55, 0.18, 0.05);
-  vec3 col = mix(hot, mix(mid, cool, smoothstep(0.35, 1.0, t)), smoothstep(0.0, 0.4, t));
-
-  vec3 tangent = normalize(vec3(-p.z, 0.0, p.x));
-  float beta = 0.55 / sqrt(max(r, 1.2));
-  float dop = 1.0 / (1.0 - beta * dot(tangent, -rd));
-  float boost = pow(clamp(dop, 0.35, 2.6), 3.0);
-  col *= boost;
-  col = mix(col, col * vec3(0.85, 0.95, 1.25), clamp((dop - 1.0) * 1.6, 0.0, 0.5));
-
-  col += vec3(1.4, 1.1, 0.75) * smoothstep(0.09, 0.0, t) * 1.6;
-
-  /* ---- dolu kuşaklar: halka + dönen sondaj ışıltıları ---- */
-  for (int k = 0; k < 4; k++) {
-    float occ = uBands[k];
-    if (occ < 0.01) continue;
-    float R = bandR(k);
-    vec3 tint = bandTint(k);
-    float ring = smoothstep(0.34, 0.06, abs(r - R));
-    col += tint * ring * occ * (0.28 + 0.10 * sin(uTime * 3.0 + float(k)));
-
-    /* kuşakta dönen 3 sondaj kıvılcımı */
-    float om = 1.6 / (pow(R, 1.5) + 0.2);
-    for (int j = 0; j < 3; j++) {
-      float a0 = uTime * om * 1.9 + float(j) * 2.094 + float(k) * 0.8;
-      float dth = wrapPi(theta - a0);
-      float g = exp(-dth * dth * 90.0) * exp(-(r - R) * (r - R) * 26.0);
-      col += (tint * 1.6 + 0.6) * g * occ;
+vec3 diskShade(vec3 p, vec3 rd, out float alpha){
+  float r=length(p.xz);
+  float t=clamp((r-DISK_IN)/(DISK_OUT-DISK_IN),0.0,1.0);
+  float omega=1.6/(pow(r,1.5)+0.2);
+  float theta=atan(p.z,p.x);
+  float ang=theta-uTime*omega;
+  float bands=fbm(vec2(r*3.0,ang*5.0));
+  float streaks=fbm(vec2(r*9.0-uTime*0.15,ang*14.0));
+  float density=bands*0.7+streaks*0.5;
+  density*=smoothstep(1.0,0.75,t);
+  density*=smoothstep(0.0,0.12,t)+0.35;
+  vec3 hot=vec3(1.35,1.22,1.05);
+  vec3 mid=vec3(1.30,0.72,0.28);
+  vec3 cool=vec3(0.55,0.18,0.05);
+  vec3 col=mix(hot,mix(mid,cool,smoothstep(0.35,1.0,t)),smoothstep(0.0,0.4,t));
+  vec3 tangent=normalize(vec3(-p.z,0.0,p.x));
+  float beta=0.55/sqrt(max(r,1.2));
+  float dop=1.0/(1.0-beta*dot(tangent,-rd));
+  float boost=pow(clamp(dop,0.35,2.6),3.0);
+  col*=boost;
+  col=mix(col,col*vec3(0.85,0.95,1.25),clamp((dop-1.0)*1.6,0.0,0.5));
+  col+=vec3(1.4,1.1,0.75)*smoothstep(0.09,0.0,t)*1.6;
+  for(int k=0;k<4;k++){
+    float occ=uBands[k];
+    if(occ<0.01)continue;
+    float R=bandR(k);
+    vec3 tint=bandTint(k);
+    float ring=smoothstep(0.34,0.06,abs(r-R));
+    col+=tint*ring*occ*(0.28+0.10*sin(uTime*3.0+float(k)));
+    float om=1.6/(pow(R,1.5)+0.2);
+    for(int j=0;j<3;j++){
+      float a0=uTime*om*1.9+float(j)*2.094+float(k)*0.8;
+      float dth=wrapPi(theta-a0);
+      float g=exp(-dth*dth*90.0)*exp(-(r-R)*(r-R)*26.0);
+      col+=(tint*1.6+0.6)*g*occ;
     }
-    /* claim dalgası: kuşaklardan dışa yayılan parlama */
-    col += tint * ring * uClaim * 1.4;
+    col+=tint*ring*uClaim*1.4;
   }
-
-  alpha = clamp(density * 1.35, 0.0, 1.0);
-  return col * (0.35 + density * 1.3);
+  alpha=clamp(density*1.35,0.0,1.0);
+  return col*(0.35+density*1.3);
 }
-
-void main() {
-  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / min(uRes.x, uRes.y);
-
-  float yaw = uCamYaw + uTime * 0.012;
-  float pitch = 0.16 + uCamPitch;
-  float camR = 16.5;
-  vec3 ro = vec3(cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)) * camR;
-  vec3 fwd = normalize(-ro);
-  vec3 rgt = normalize(cross(fwd, vec3(0., 1., 0.)));
-  vec3 up  = cross(rgt, fwd);
-  vec3 rd = normalize(fwd * 1.35 + rgt * uv.x + up * uv.y);
-
-  vec3 p = ro, v = rd;
-  vec3 hvec = cross(p, v);
-  float h2 = dot(hvec, hvec);
-
-  vec3 col = vec3(0.0);
-  float trans = 1.0;
-  bool captured = false;
-  float prevY = p.y;
-  vec3 prevP = p;
-
-  const int MAXS = 220;
-  for (int i = 0; i < MAXS; i++) {
-    if (float(i) >= uSteps) break;
-    float r2 = dot(p, p);
-    float r = sqrt(r2);
-    float dt = clamp(r * 0.10, 0.035, 0.55);
-    vec3 acc = -1.5 * h2 * p / (r2 * r2 * r);
-    v += acc * dt;
-    p += v * dt;
-    if (dot(p, p) < RS * RS) { captured = true; break; }
-    if (prevY * p.y < 0.0) {
-      float f = prevY / (prevY - p.y);
-      vec3 hit = mix(prevP, p, f);
-      float hr = length(hit.xz);
-      if (hr > DISK_IN && hr < DISK_OUT) {
+void main(){
+  vec2 uv=(gl_FragCoord.xy*2.0-uRes)/min(uRes.x,uRes.y);
+  float yaw=uCamYaw+uTime*0.012;
+  float pitch=0.16+uCamPitch;
+  float camR=16.5;
+  vec3 ro=vec3(cos(yaw)*cos(pitch),sin(pitch),sin(yaw)*cos(pitch))*camR;
+  vec3 fwd=normalize(-ro);
+  vec3 rgt=normalize(cross(fwd,vec3(0.,1.,0.)));
+  vec3 up=cross(rgt,fwd);
+  vec3 rd=normalize(fwd*1.35+rgt*uv.x+up*uv.y);
+  vec3 p=ro,v=rd;
+  vec3 hvec=cross(p,v);
+  float h2=dot(hvec,hvec);
+  vec3 col=vec3(0.0);
+  float trans=1.0;
+  bool captured=false;
+  float prevY=p.y;
+  vec3 prevP=p;
+  const int MAXS=220;
+  for(int i=0;i<MAXS;i++){
+    if(float(i)>=uSteps)break;
+    float r2=dot(p,p);
+    float r=sqrt(r2);
+    float dt=clamp(r*0.10,0.035,0.55);
+    vec3 acc=-1.5*h2*p/(r2*r2*r);
+    v+=acc*dt;p+=v*dt;
+    if(dot(p,p)<RS*RS){captured=true;break;}
+    if(prevY*p.y<0.0){
+      float f=prevY/(prevY-p.y);
+      vec3 hit=mix(prevP,p,f);
+      float hr=length(hit.xz);
+      if(hr>DISK_IN&&hr<DISK_OUT){
         float a;
-        vec3 dcol = diskShade(hit, normalize(v), a);
-        col += dcol * a * trans;
-        trans *= (1.0 - a * 0.9);
-        if (trans < 0.02) break;
+        vec3 dcol=diskShade(hit,normalize(v),a);
+        col+=dcol*a*trans;
+        trans*=(1.0-a*0.9);
+        if(trans<0.02)break;
       }
     }
-    prevY = p.y; prevP = p;
-    if (dot(p, p) > 1500.0) break;
+    prevY=p.y;prevP=p;
+    if(dot(p,p)>1500.0)break;
   }
-
-  if (!captured) col += stars(normalize(v)) * trans;
-
-  float b = length(cross(ro, rd));
-  float pr = abs(b - 2.6);
-  col += vec3(1.0, 0.75, 0.45) * exp(-pr * pr * 9.0) * 0.5;
-
-  col = col / (col + 0.85);
-  col = pow(col, vec3(0.86));
-  col *= 1.0 - 0.35 * dot(uv * 0.55, uv * 0.55);
-
-  /* fırtına: kısa kızıl kenar flaşı */
-  float edge = smoothstep(0.5, 1.4, length(uv));
-  col = mix(col, vec3(0.9, 0.1, 0.05), edge * uEvent * 0.6);
-
-  gl_FragColor = vec4(col, 1.0);
+  if(!captured)col+=stars(normalize(v))*trans;
+  float b=length(cross(ro,rd));
+  float pr=abs(b-2.6);
+  col+=vec3(1.0,0.75,0.45)*exp(-pr*pr*9.0)*0.5;
+  col=col/(col+0.85);
+  col=pow(col,vec3(0.86));
+  col*=1.0-0.35*dot(uv*0.55,uv*0.55);
+  float edge=smoothstep(0.5,1.4,length(uv));
+  col=mix(col,vec3(0.9,0.1,0.05),edge*uEvent*0.6);
+  gl_FragColor=vec4(col,1.0);
 }
 `;
 
@@ -522,7 +495,6 @@ function compile(type, src) {
   if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
   return s;
 }
-/* GL kaynakları context kaybında yeniden kurulabilsin diye fonksiyonda */
 let U = {};
 function setupGL() {
   const prog = gl.createProgram();
@@ -531,28 +503,22 @@ function setupGL() {
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   gl.useProgram(prog);
-
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
   const aPos = gl.getAttribLocation(prog, "aPos");
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
   U = {};
   for (const n of ["uRes","uTime","uCamYaw","uCamPitch","uBands","uEvent","uClaim","uSteps"])
     U[n] = gl.getUniformLocation(prog, n);
   gl.viewport(0, 0, canvas.width, canvas.height);
 }
 setupGL();
-
-/* telefonda GPU sıfırlanırsa (bellek baskısı vb.) canvas donup kalmasın:
-   kaybı yut, geri gelince pipeline'ı yeniden kur */
 canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); });
 canvas.addEventListener("webglcontextrestored", () => {
-  renderScale = Math.min(renderScale, 0.55);   /* daha temkinli devam et */
-  setupGL();
-  resize();
+  renderScale = Math.min(renderScale, 0.55);
+  setupGL(); resize();
 });
 
 let renderScale = Math.min(window.devicePixelRatio || 1, 2) * 0.65;
@@ -569,47 +535,121 @@ resize();
 /* ================================================================
    PROTOKOL VERİLERİ
    ================================================================ */
-const SAVE_KEY = "gargantua-grav-v2";
+const SAVE_KEY = "gargantua-grav-v3";
+/* ?dev=1 → tüm süreler 60× hızlı (test için) */
+const SPEED = new URLSearchParams(location.search).get("dev") ? 60 : 1;
 
-/* kuşaklar: dış → iç. rate = GRAV/saat (sv.1 sondaj), risk = %/saat */
+const RES = {
+  H2O:  { name: "H₂O",  full: "Su buzu",            ic: "💧" },
+  HE3:  { name: "³He",  full: "Helyum-3",            ic: "☄" },
+  PGM:  { name: "PGM",  full: "Platin grubu metal",  ic: "⬙" },
+  EXO:  { name: "EXO",  full: "Egzotik madde",       ic: "✦" },
+  YAKIT:{ name: "LH₂",  full: "Kriyojenik yakıt",    ic: "🜲" },
+  PELET:{ name: "PLT",  full: "Füzyon peleti",       ic: "◉" },
+  BILESEN:{ name: "BLŞ", full: "Gemi bileşeni",      ic: "⬡" },
+  QCORE:{ name: "QÇK",  full: "Kuantum çekirdeği",   ic: "❖" },
+};
+
+/* kuşaklar: kaynak karışımı /saat (sv.1 sondaj), risk %/saat */
 const BANDS = [
-  { name: "DIŞ KUŞAK",    code: "B-0", rate: 12,  risk: 2,  dil: 1.02, color: "var(--ok)" },
-  { name: "ORTA DİSK",    code: "B-1", rate: 30,  risk: 8,  dil: 1.20, color: "var(--cyan)" },
-  { name: "İÇ KENAR",     code: "B-2", rate: 75,  risk: 20, dil: 2.50, color: "var(--violet)" },
-  { name: "FOTON SINIRI", code: "B-3", rate: 180, risk: 45, dil: 9.00, color: "var(--danger)" },
+  { name: "DIŞ KUŞAK",    code: "B-0", yields: { H2O: 40, PGM: 3 },  risk: 2,  dil: 1.02, lvl: 1,  color: "var(--ok)" },
+  { name: "ORTA DİSK",    code: "B-1", yields: { H2O: 22, HE3: 9 },  risk: 8,  dil: 1.20, lvl: 3,  color: "var(--cyan)" },
+  { name: "İÇ KENAR",     code: "B-2", yields: { HE3: 22, PGM: 10 }, risk: 20, dil: 2.50, lvl: 6,  color: "var(--violet)" },
+  { name: "FOTON SINIRI", code: "B-3", yields: { HE3: 14, EXO: 4 },  risk: 45, dil: 9.00, lvl: 10, color: "var(--danger)" },
+];
+
+const RECIPES = [
+  { key: "YAKIT",   name: "ELEKTROLİZ → LH₂/LOX", inp: { H2O: 60 },           erg: 20, out: 10, mins: 30,  lvl: 2 },
+  { key: "PELET",   name: "³He FÜZYON PELETİ",    inp: { HE3: 40 },           erg: 35, out: 8,  mins: 120, lvl: 5 },
+  { key: "BILESEN", name: "PGM GEMİ BİLEŞENİ",    inp: { PGM: 30 },           erg: 25, out: 6,  mins: 240, lvl: 7 },
+  { key: "QCORE",   name: "KUANTUM ÇEKİRDEĞİ",    inp: { EXO: 10, PELET: 5 }, erg: 60, out: 1,  mins: 480, lvl: 12, tech: "qcomm" },
+];
+
+const MARKET = [
+  { key: "YAKIT",   base: 2.2, quota: 200, t1: 7200,  t2: 1500 },
+  { key: "PELET",   base: 9,   quota: 60,  t1: 9800,  t2: 2100 },
+  { key: "BILESEN", base: 16,  quota: 30,  t1: 12400, t2: 1800 },
+  { key: "QCORE",   base: 130, quota: 5,   t1: 16000, t2: 3000 },
+];
+
+/* teknoloji ağacı — katman kapıları: T1 sv3, T2 sv5, T3 sv8, T4 sv12 */
+const TIER_LVL = { 1: 3, 2: 5, 3: 8, 4: 12 };
+const TECH = [
+  { key: "ion",      tier: 1, name: "İYON İTKİ",               desc: "Sefer süresi −25%. Xenon bazlı elektrikli itki.",            cost: { H2O: 150, GRAV: 12 },          mins: 15 },
+  { key: "spectro",  tier: 1, name: "SPEKTROMETRE DİZİSİ",     desc: "Damar analizi: tüm kaynak verimi +10%.",                     cost: { PGM: 40, GRAV: 15 },           mins: 25 },
+  { key: "electro",  tier: 1, name: "ELEKTROLİZ TESİSİ",       desc: "H₂O verimi +30%.",                                           cost: { H2O: 250, GRAV: 10 },          mins: 20 },
+  { key: "isru",     tier: 2, name: "ISRU RAFİNERİSİ",         desc: "Yerinde kaynak kullanımı: parti kapasitesi ×2.",             cost: { PGM: 90, YAKIT: 20, GRAV: 30 }, mins: 45, req: "electro" },
+  { key: "massdrv",  tier: 2, name: "KÜTLE SÜRÜCÜSÜ",          desc: "Elektromanyetik fırlatma: sefer ödülü +30%.",                cost: { PGM: 120, GRAV: 35 },          mins: 60, req: "ion" },
+  { key: "mhd",      tier: 2, name: "MHD KALKANI",             desc: "Manyetohidrodinamik kalkan: fırtına riski −40%.",            cost: { HE3: 80, GRAV: 40 },           mins: 60, req: "spectro" },
+  { key: "fusion",   tier: 3, name: "³He FÜZYON REAKTÖRÜ",     desc: "ERG kapasitesi +100, üretimi +50%.",                         cost: { PELET: 15, GRAV: 70 },         mins: 120, req: "isru" },
+  { key: "lagrange", tier: 3, name: "LAGRANGE DEPOSU (L4)",    desc: "Çevrimdışı birikim sınırı 24s → 48s.",                       cost: { BILESEN: 10, GRAV: 60 },       mins: 90,  req: "massdrv" },
+  { key: "robotic",  tier: 3, name: "ROBOTİK SONDAJ HATTI",    desc: "Filo sınırı +2 sondaj.",                                     cost: { BILESEN: 14, GRAV: 80 },       mins: 120, req: "isru" },
+  { key: "qradar",   tier: 4, name: "KUANTUM RADAR",           desc: "Fırtına öngörüsü: risk −60% (MHD ile birikir).",             cost: { EXO: 20, GRAV: 150 },          mins: 240, req: "mhd" },
+  { key: "qcomm",    tier: 4, name: "KUANTUM DOLANIKLIK İLET.", desc: "Anlık filo koordinasyonu: tüm verim +15%. QÇK tarifini açar.", cost: { EXO: 30, GRAV: 180 },        mins: 300, req: "fusion" },
+  { key: "alcubierre", tier: 4, name: "ALCUBIERRE SÜRÜCÜ PROTOTİPİ", desc: "Uzay-zaman kabarcığı: sefer süresi −50%, ödül +50%.", cost: { QCORE: 3, EXO: 40, GRAV: 400 }, mins: 480, req: "qcomm" },
+];
+
+/* konsorsiyum statüsü (VIP) */
+const KS_THRESH = [0, 50, 150, 400, 1000, 2200, 4500, 8000, 14000, 22000, 35000];
+const KS_NAMES = ["ADAY", "STAJYER", "OPERATÖR", "ŞEF", "MÜDÜR", "DİREKTÖR", "ORTAK", "KIDEMLİ ORTAK", "İCRA KURULU", "BAŞKAN VEKİLİ", "YÖNETİM KURULU"];
+const KS_PERKS = [
+  "—",
+  "Tüm verim +2%",
+  "Verim +4% · onarım −15%",
+  "Verim +6% · günlük +1 kontrat",
+  "Verim +8% · ERG üretimi +25%",
+  "Verim +10% · çevrimdışı sınır +12s",
+  "Verim +12% · rafineri +1 slot",
+  "Verim +14% · sefer ödülü +10%",
+  "Verim +16% · fırtına riski −10%",
+  "Verim +18% · pazar kotası +25%",
+  "Verim +20% · tüm süreler −10%",
 ];
 
 const RIG_NAMES = ["TARS", "CASE", "KIPP", "PLEX", "ATLAS", "VEYRON", "NOMAD", "ORCA", "HALLEY", "ZEPHYR"];
 
+/* ================================================================
+   DURUM
+   ================================================================ */
 const state = {
-  grav: 25,
-  staked: 0,
-  rigs: [],          // {id, name, band, level, status, accrued, expEnd, expReward}
-  ledger: [],        // {t, label, amount, hash, time}
-  wallet: null,
-  nextId: 1,
+  grav: 40, staked: 0,
+  inv: { H2O: 30, HE3: 0, PGM: 0, EXO: 0, YAKIT: 0, PELET: 0, BILESEN: 0, QCORE: 0 },
+  erg: 80,
+  xp: 0, level: 1,
+  rigs: [], nextId: 1,
+  tech: {},                 // key -> true
+  research: null,           // {key, end}
+  batches: [],              // {key, qty, end}
+  contracts: null,          // {day, list, streak, lastDay}
+  sold: { day: 0, q: {} },  // pazar günlük kota takibi
+  ks: { pts: 0, lastLogin: 0 },
+  ledger: [], wallet: null,
   lastSeen: Date.now(),
 };
 
-/* ---- ekonomi ---- */
-function rigCost()        { return Math.ceil(20 * Math.pow(1.9, state.rigs.length)); }
-function levelCost(rig)   { return Math.ceil(15 * Math.pow(2.0, rig.level)); }
-function repairCost(rig)  { return Math.ceil(6 * Math.pow(1.7, rig.level - 1) * (rig.band + 1)); }
-function stakeBoost()     { return 1 + Math.min(0.5, (state.staked / 100) * 0.02); }
-function rigRate(rig) {    /* GRAV/sn */
-  if (rig.status !== "mining") return 0;
-  return BANDS[rig.band].rate / 3600 * Math.pow(1.6, rig.level - 1) * stakeBoost();
+/* ---- yardımcılar ---- */
+const now = () => Date.now();
+function dayIdx(t) { return Math.floor((t || now()) / 86400000); }
+function mulberry(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
 }
-function fleetRate() { return state.rigs.reduce((s, r) => s + rigRate(r), 0); }
-function totalAccrued() { return state.rigs.reduce((s, r) => s + r.accrued, 0); }
-
-function fmtG(n) {
-  if (n < 100) return n.toFixed(4);
-  if (n < 10000) return n.toFixed(2);
-  const units = ["K", "M", "B", "T"];
-  let u = -1;
-  while (n >= 1000 && u < units.length - 1) { n /= 1000; u++; }
-  return n.toFixed(1) + units[u];
+function fmt(n) {
+  if (n < 1000) return (Math.round(n * 10) / 10).toString();
+  const u = ["K", "M", "B", "T"]; let i = -1;
+  while (n >= 1000 && i < u.length - 1) { n /= 1000; i++; }
+  return n.toFixed(n < 10 ? 1 : 0) + u[i];
+}
+function fmtG(n) { return n < 100 ? n.toFixed(2) : fmt(n); }
+function fmtDur(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  if (s < 90) return s + "sn";
+  if (s < 5400) return Math.ceil(s / 60) + "dk";
+  return (s / 3600).toFixed(1) + "sa";
 }
 function txHash() {
   const b = new Uint8Array(8);
@@ -617,65 +657,255 @@ function txHash() {
   return "0x" + Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
 }
 function ledgerAdd(label, amount) {
-  state.ledger.unshift({ label, amount, hash: txHash(), time: Date.now() });
+  state.ledger.unshift({ label, amount, hash: txHash(), time: now() });
   if (state.ledger.length > 40) state.ledger.length = 40;
+}
+
+/* ---- statü (VIP) ---- */
+function ksLevel() {
+  let l = 0;
+  while (l + 1 < KS_THRESH.length && state.ks.pts >= KS_THRESH[l + 1]) l++;
+  return l;
+}
+function ksAdd(p) {
+  const before = ksLevel();
+  state.ks.pts += p;
+  const after = ksLevel();
+  if (after > before) toast(`👑 Konsorsiyum statüsü: ${KS_NAMES[after]} — ${KS_PERKS[after]}`);
+}
+
+/* ---- seviye / XP ---- */
+function xpNeed(l) { return Math.round(80 * Math.pow(1.4, l - 1)); }
+function addXp(n) {
+  state.xp += n;
+  while (state.xp >= xpNeed(state.level)) {
+    state.xp -= xpNeed(state.level);
+    state.level++;
+    const bonus = 10 + state.level * 5;
+    state.grav += bonus;
+    ledgerAdd(`Seviye ${state.level} terfisi`, +bonus);
+    toast(`⭐ KOMUTAN SEVİYE ${state.level}! +⬡${bonus} · yeni kilitler açılıyor olabilir.`);
+    if (navigator.vibrate) navigator.vibrate([20, 40, 30]);
+  }
+}
+
+/* ---- çarpanlar ---- */
+function hasTech(k) { return !!state.tech[k]; }
+function stakeBoost() { return 1 + Math.min(0.5, (state.staked / 100) * 0.02); }
+function yieldMult(resKey) {
+  let m = stakeBoost() * (1 + 0.02 * ksLevel());
+  if (hasTech("spectro")) m *= 1.10;
+  if (hasTech("qcomm")) m *= 1.15;
+  if (resKey === "H2O" && hasTech("electro")) m *= 1.3;
+  return m;
+}
+function stormRiskMult() {
+  let m = 1;
+  if (hasTech("mhd")) m *= 0.6;
+  if (hasTech("qradar")) m *= 0.4;
+  if (ksLevel() >= 8) m *= 0.9;
+  return m;
+}
+function timeMult() { return (ksLevel() >= 10 ? 0.9 : 1) / SPEED; }
+function expDurMult() {
+  let m = 1;
+  if (hasTech("ion")) m *= 0.75;
+  if (hasTech("alcubierre")) m *= 0.5;
+  return m * timeMult();
+}
+function expRewardMult() {
+  let m = 1;
+  if (hasTech("massdrv")) m *= 1.3;
+  if (hasTech("alcubierre")) m *= 1.5;
+  if (ksLevel() >= 7) m *= 1.1;
+  return m;
+}
+function ergCap() { return 120 + (hasTech("fusion") ? 100 : 0); }
+function ergRegen() { /* /saat */
+  return 24 * (hasTech("fusion") ? 1.5 : 1) * (ksLevel() >= 4 ? 1.25 : 1);
+}
+function maxRigs() { return 4 + (hasTech("robotic") ? 2 : 0); }
+function batchSlots() {
+  let s = 1;
+  if (state.level >= 6) s++;
+  if (state.level >= 12) s++;
+  if (ksLevel() >= 6) s++;
+  return s;
+}
+function batchCap() { return hasTech("isru") ? 2 : 1; }
+function offlineCapMs() {
+  return (24 + (hasTech("lagrange") ? 24 : 0) + (ksLevel() >= 5 ? 12 : 0)) * 3600000;
+}
+function quotaMult() { return ksLevel() >= 9 ? 1.25 : 1; }
+function contractCount() { return 3 + (ksLevel() >= 3 ? 1 : 0); }
+
+/* ---- ekonomi ---- */
+function rigCost() { return Math.ceil(20 * Math.pow(1.9, state.rigs.length)); }
+function levelCost(rig) { return { GRAV: Math.ceil(12 * Math.pow(1.8, rig.level)), PGM: Math.ceil(20 * Math.pow(1.7, rig.level - 1)) }; }
+function repairCost(rig) {
+  let c = Math.ceil(6 * Math.pow(1.7, rig.level - 1) * (rig.band + 1));
+  if (ksLevel() >= 2) c = Math.ceil(c * 0.85);
+  return c;
+}
+function rigYields(rig) { /* {res: /sn} */
+  if (rig.status !== "mining") return {};
+  const out = {};
+  const lvlMult = Math.pow(1.5, rig.level - 1);
+  for (const [k, v] of Object.entries(BANDS[rig.band].yields)) {
+    out[k] = v / 3600 * lvlMult * yieldMult(k) * SPEED;
+  }
+  return out;
+}
+function totalAccrued() {
+  const t = {};
+  for (const rig of state.rigs)
+    for (const [k, v] of Object.entries(rig.acc || {}))
+      t[k] = (t[k] || 0) + v;
+  return t;
+}
+function marketPrice(m, t) {
+  const sec = (t || now()) / 1000;
+  const ph = m.key.length * 7.3;
+  return m.base * (1 + 0.28 * Math.sin(sec / m.t1 + ph) + 0.12 * Math.sin(sec / m.t2 + ph * 1.7));
+}
+function quotaLeft(m) {
+  if (state.sold.day !== dayIdx()) { state.sold = { day: dayIdx(), q: {} }; }
+  return Math.max(0, Math.round(m.quota * quotaMult()) - (state.sold.q[m.key] || 0));
+}
+function canPay(cost) {
+  for (const [k, v] of Object.entries(cost)) {
+    if (k === "GRAV") { if (state.grav < v) return false; }
+    else if ((state.inv[k] || 0) < v) return false;
+  }
+  return true;
+}
+function pay(cost, label) {
+  for (const [k, v] of Object.entries(cost)) {
+    if (k === "GRAV") { state.grav -= v; ksAdd(Math.round(v * 0.5)); ledgerAdd(label, -v); }
+    else state.inv[k] -= v;
+  }
+}
+function costText(cost) {
+  return Object.entries(cost).map(([k, v]) => k === "GRAV" ? `⬡${v}` : `${v} ${RES[k].name}`).join(" + ");
 }
 function newRig(band) {
   return {
     id: state.nextId++,
     name: RIG_NAMES[(state.nextId - 2) % RIG_NAMES.length] + "-" + String(state.nextId - 1).padStart(2, "0"),
-    band, level: 1, status: "mining", accrued: 0, expEnd: 0, expReward: 0,
+    band, level: 1, status: "mining", acc: {}, expEnd: 0,
   };
+}
+
+/* ---- kontratlar ---- */
+const CONTRACT_POOL = [
+  { res: "H2O",     min: 30, max: 80,  g: 0.18, lvl: 1,  who: "Kepler İstasyonu" },
+  { res: "PGM",     min: 15, max: 40,  g: 0.55, lvl: 1,  who: "Cooper Tersanesi" },
+  { res: "HE3",     min: 20, max: 50,  g: 0.5,  lvl: 3,  who: "Endurance Filosu" },
+  { res: "YAKIT",   min: 6,  max: 15,  g: 2.6,  lvl: 2,  who: "Lazarus Görevi" },
+  { res: "PELET",   min: 4,  max: 10,  g: 6.5,  lvl: 5,  who: "Romilly Araştırma" },
+  { res: "BILESEN", min: 3,  max: 8,   g: 11,   lvl: 7,  who: "Brand Vakfı" },
+  { res: "EXO",     min: 3,  max: 8,   g: 14,   lvl: 10, who: "TARS Arşivi" },
+];
+function genContracts() {
+  const day = dayIdx();
+  const rnd = mulberry(day * 7919 + 13);
+  const pool = CONTRACT_POOL.filter(c => c.lvl <= state.level);
+  /* tekrarsız seçim: havuzu karıştır, sırayla tüket */
+  const bag = [...pool].sort(() => rnd() - 0.5);
+  const list = [];
+  const n = contractCount();
+  for (let i = 0; i < n; i++) {
+    const c = bag[i % bag.length];
+    const qty = Math.round((c.min + rnd() * (c.max - c.min)) * (1 + state.level * 0.06));
+    list.push({
+      res: c.res, qty, who: c.who,
+      grav: Math.max(3, Math.round(qty * c.g)),
+      xp: 20 + Math.round(qty * c.g * 0.6),
+      done: false,
+    });
+  }
+  const prevStreak = state.contracts ? state.contracts.streak : 0;
+  const prevLast = state.contracts ? state.contracts.lastDay : 0;
+  /* dün tamamlanmadıysa seri sıfırlanır */
+  const streak = prevLast >= day - 1 ? prevStreak : 0;
+  state.contracts = { day, list, streak, lastDay: prevLast };
+}
+function ensureContracts() {
+  if (!state.contracts || state.contracts.day !== dayIdx()) genContracts();
+}
+
+/* ---- sefer ---- */
+const EXP_FUEL = 5;
+function expReward(rig) {
+  return Math.round((6 + rig.band * 9) * Math.pow(1.3, rig.level - 1) * expRewardMult());
+}
+function resolveExpedition(rig, silent) {
+  const ok = Math.random() * 100 > BANDS[rig.band].risk * stormRiskMult();
+  if (ok) {
+    const g = expReward(rig);
+    state.grav += g;
+    ledgerAdd(`${rig.name} sefer ödülü`, +g);
+    if (rig.band >= 2 && Math.random() < 0.5) {
+      const exo = 1 + Math.floor(Math.random() * 3);
+      state.inv.EXO += exo;
+      if (!silent) toast(`🚀 ${rig.name} döndü: +⬡${g} ve +${exo} EXO!`);
+    } else if (!silent) toast(`🚀 ${rig.name} seferden döndü: +⬡${g}`);
+    addXp(20); ksAdd(3);
+    rig.status = "mining";
+  } else {
+    rig.status = "damaged";
+    ledgerAdd(`${rig.name} seferde hasar aldı`, 0);
+    if (!silent) toast(`💥 ${rig.name} sefer başarısız — sondaj hasarlı!`, true);
+  }
+  rig.expEnd = 0;
 }
 
 /* ---- kaydet / yükle ---- */
 function save() {
-  state.lastSeen = Date.now();
+  state.lastSeen = now();
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 function load() {
-  let offline = 0;
+  const report = [];
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return 0;
+    if (!raw) return report;
     Object.assign(state, JSON.parse(raw));
-    const away = Math.min((Date.now() - state.lastSeen) / 1000, 24 * 3600);
-    if (away > 30) {
+    const away = Math.min(now() - state.lastSeen, offlineCapMs());
+    if (away > 30000) {
+      const awaySec = away / 1000;
+      let tot = 0;
       for (const rig of state.rigs) {
-        if (rig.status === "expedition" && Date.now() >= rig.expEnd) resolveExpedition(rig, true);
-        const g = rigRate(rig) * away;   /* pasif: tam verimle birikir */
-        rig.accrued += g;
-        offline += g;
+        if (rig.status === "expedition" && now() >= rig.expEnd) resolveExpedition(rig, true);
+        for (const [k, v] of Object.entries(rigYields(rig))) {
+          rig.acc[k] = (rig.acc[k] || 0) + v * awaySec;
+          tot += v * awaySec;
+        }
       }
+      if (tot > 1) report.push(`🛰 Filon ${fmt(tot)} birim kaynak topladı.`);
+      state.erg = Math.min(ergCap(), state.erg + ergRegen() / 3600 * awaySec * SPEED);
     }
   } catch (e) {}
-  return offline;
+  return report;
 }
 setInterval(save, 5000);
 window.addEventListener("pagehide", save);
-document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
 
 /* ================================================================
    UI
    ================================================================ */
 const $ = (id) => document.getElementById(id);
-const elBal = $("bal"), elAccr = $("accrued"), elApr = $("netapr");
-const claimPill = $("claimpill"), claimBtn = $("claimbtn");
 const sheet = $("sheet"), panel = $("panel"), sheetTitle = $("sheetTitle");
-
 let activeTab = null;
 let eventFlash = 0, claimWave = 0;
 
 document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => {
-    if (activeTab === btn.dataset.tab && sheet.classList.contains("open")) {
-      closeSheet(); return;
-    }
+    if (activeTab === btn.dataset.tab && sheet.classList.contains("open")) { closeSheet(); return; }
     openTab(btn.dataset.tab);
   });
 });
 $("sheetClose").addEventListener("click", closeSheet);
-
 function closeSheet() {
   sheet.classList.remove("open");
   document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
@@ -687,196 +917,360 @@ function openTab(tab) {
   sheet.classList.add("open");
   renderPanel();
 }
-
 function renderPanel() {
   if (!activeTab) return;
-  if (activeTab === "fleet")  renderFleet();
-  if (activeTab === "orbits") renderOrbits();
-  if (activeTab === "wallet") renderWallet();
+  ({ fleet: renderFleet, orbits: renderOrbits, refinery: renderRefinery, market: renderMarket, base: renderBase })[activeTab]();
+}
+
+function card(html, cls) {
+  const d = document.createElement("div");
+  d.className = "card" + (cls ? " " + cls : "");
+  d.innerHTML = html;
+  panel.appendChild(d);
+  return d;
+}
+function sect(title, extra) {
+  const d = document.createElement("div");
+  d.className = "secthead";
+  d.innerHTML = `<span>${title}</span>${extra ? `<span>${extra}</span>` : ""}`;
+  panel.appendChild(d);
 }
 
 /* ---------- FİLO ---------- */
 function renderFleet() {
-  sheetTitle.textContent = "🛰 SONDAJ FİLOSU";
+  sheetTitle.textContent = "🛰 SONDAJ FİLOSU · " + state.rigs.length + "/" + maxRigs();
   panel.innerHTML = "";
-  if (state.rigs.length === 0) {
-    panel.innerHTML = `<div class="card" style="text-align:center;color:var(--mut);font-size:11px;line-height:1.8">
-      Filo boş. YÖRÜNGE sekmesinden ilk sondajını konuşlandır.</div>`;
+  if (!state.rigs.length) {
+    card(`<div style="text-align:center;color:var(--mut);font-size:10.5px;line-height:1.8">Filo boş. YÖRÜNGE sekmesinden ilk sondajını konuşlandır — ilki bedava.</div>`);
     return;
   }
   for (const rig of state.rigs) {
     const B = BANDS[rig.band];
-    const card = document.createElement("div");
-    card.className = "card";
-    let statusTag, sub, buttons = "";
+    let tag, sub, btns = "";
     if (rig.status === "mining") {
-      statusTag = `<span class="tag mining">KAZIYOR</span>`;
-      sub = `${B.code} ${B.name} · sv.${rig.level} · ${fmtG(rigRate(rig) * 3600)} ⬡/sa`;
-      const expDur = 15, expReward = rigRate(rig) * 3600 * (expDur / 60) * 4;
-      buttons = `
-        <button class="sbtn primary" data-act="up" data-id="${rig.id}" ${state.grav < levelCost(rig) ? "disabled" : ""}>GELİŞTİR ⬡${fmtG(levelCost(rig))}</button>
-        <button class="sbtn violet" data-act="exp" data-id="${rig.id}">SEFER 15dk · ~⬡${fmtG(expReward)}</button>`;
+      const ys = Object.entries(rigYields(rig)).map(([k, v]) => `${RES[k].name} ${fmt(v * 3600 / SPEED)}/sa`).join(" · ");
+      tag = `<span class="tag mining">KAZIYOR</span>`;
+      sub = `${B.code} ${B.name} · sv.${rig.level}<br>${ys}`;
+      const lc = levelCost(rig);
+      btns = `
+        <button class="sbtn primary" data-act="up" data-id="${rig.id}" ${canPay(lc) ? "" : "disabled"}>GELİŞTİR · ${costText(lc)}</button>
+        <button class="sbtn violet" data-act="exp" data-id="${rig.id}" ${state.inv.YAKIT >= EXP_FUEL ? "" : "disabled"}>SEFER · ${EXP_FUEL} LH₂ → ~⬡${expReward(rig)}</button>`;
     } else if (rig.status === "damaged") {
-      statusTag = `<span class="tag damaged">HASARLI</span>`;
-      sub = `${B.code} ${B.name} · sv.${rig.level} · kütleçekim fırtınası vurdu`;
-      buttons = `<button class="sbtn danger" data-act="fix" data-id="${rig.id}" ${state.grav < repairCost(rig) ? "disabled" : ""}>ONAR ⬡${fmtG(repairCost(rig))}</button>`;
+      tag = `<span class="tag damaged">HASARLI</span>`;
+      sub = `${B.code} · sv.${rig.level} · kütleçekim fırtınası vurdu`;
+      btns = `<button class="sbtn danger" data-act="fix" data-id="${rig.id}" ${state.grav >= repairCost(rig) ? "" : "disabled"}>ONAR · ⬡${repairCost(rig)}</button>`;
     } else {
-      const left = Math.max(0, rig.expEnd - Date.now());
-      statusTag = `<span class="tag expedition">SEFERDE</span>`;
-      sub = `${B.code} derin sefer · kalan ${Math.ceil(left / 60000)}dk · ödül ~⬡${fmtG(rig.expReward)}`;
+      tag = `<span class="tag expedition">SEFERDE</span>`;
+      sub = `${B.code} derin sefer · kalan ${fmtDur(rig.expEnd - now())}`;
     }
-    card.innerHTML = `
+    const accSum = Object.values(rig.acc || {}).reduce((a, b) => a + b, 0);
+    card(`
       <div class="rowline">
-        <div>
-          <div class="rig-name">▣ ${rig.name}</div>
-          <div class="rig-sub">${sub}</div>
-        </div>
-        <div style="text-align:right">
-          ${statusTag}
-          <div class="rig-acc" style="margin-top:5px">⬡ ${fmtG(rig.accrued)}</div>
-        </div>
+        <div><div class="tname">▣ ${rig.name}</div><div class="tsub">${sub}</div></div>
+        <div style="text-align:right">${tag}<div class="thi" style="margin-top:5px;font-size:11px">birikim ${fmt(accSum)}</div></div>
       </div>
-      ${buttons ? `<div class="btnrow">${buttons}</div>` : ""}`;
-    panel.appendChild(card);
+      ${btns ? `<div class="btnrow">${btns}</div>` : ""}`);
   }
   panel.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", onRigAction));
 }
-
 function onRigAction(e) {
   const act = e.currentTarget.dataset.act;
   const rig = state.rigs.find(r => r.id == e.currentTarget.dataset.id);
   if (!rig) return;
   if (act === "up") {
     const c = levelCost(rig);
-    if (state.grav < c) return;
-    state.grav -= c; rig.level++;
-    ledgerAdd(`${rig.name} geliştirme → sv.${rig.level}`, -c);
-    toast(`▲ ${rig.name} seviye ${rig.level} — verim ×1.6`);
+    if (!canPay(c)) return;
+    pay(c, `${rig.name} geliştirme`);
+    rig.level++; addXp(8);
+    toast(`▲ ${rig.name} seviye ${rig.level} — verim ×1.5`);
   }
   if (act === "fix") {
     const c = repairCost(rig);
     if (state.grav < c) return;
-    state.grav -= c; rig.status = "mining";
+    state.grav -= c; ksAdd(Math.round(c * 0.5));
     ledgerAdd(`${rig.name} onarımı`, -c);
+    rig.status = "mining";
     toast(`🔧 ${rig.name} tekrar çevrimiçi.`);
   }
   if (act === "exp") {
+    if (state.inv.YAKIT < EXP_FUEL) return;
+    state.inv.YAKIT -= EXP_FUEL;
     rig.status = "expedition";
-    rig.expEnd = Date.now() + 15 * 60000;
-    const base = BANDS[rig.band].rate / 3600 * Math.pow(1.6, rig.level - 1) * stakeBoost();
-    rig.expReward = base * 3600 * 0.25 * 4;   /* 15dk × 4 kat */
-    toast(`🚀 ${rig.name} derin sefere çıktı — 15 dk, başarı %${100 - BANDS[rig.band].risk}`);
+    rig.expEnd = now() + 15 * 60000 * expDurMult();
+    toast(`🚀 ${rig.name} derin sefere çıktı — ${fmtDur(rig.expEnd - now())}, başarı ~%${Math.round(100 - BANDS[rig.band].risk * stormRiskMult())}`);
   }
   if (navigator.vibrate) navigator.vibrate(12);
   save(); renderPanel(); refreshHud();
-}
-
-function resolveExpedition(rig, silent) {
-  const ok = Math.random() * 100 > BANDS[rig.band].risk;
-  if (ok) {
-    rig.accrued += rig.expReward;
-    ledgerAdd(`${rig.name} sefer ödülü`, +rig.expReward);
-    if (!silent) toast(`🚀 ${rig.name} seferden döndü: +⬡${fmtG(rig.expReward)}`);
-    rig.status = "mining";
-  } else {
-    rig.status = "damaged";
-    ledgerAdd(`${rig.name} seferde hasar aldı`, 0);
-    if (!silent) toast(`💥 ${rig.name} sefer başarısız — sondaj hasarlı!`, true);
-  }
-  rig.expEnd = 0; rig.expReward = 0;
 }
 
 /* ---------- YÖRÜNGE ---------- */
 function renderOrbits() {
   sheetTitle.textContent = "◎ YÖRÜNGE KUŞAKLARI";
   panel.innerHTML = "";
-  const cost = rigCost();
+  const cost = state.rigs.length === 0 ? 0 : rigCost();
+  const full = state.rigs.length >= maxRigs();
   BANDS.forEach((B, i) => {
+    const locked = state.level < B.lvl;
     const count = state.rigs.filter(r => r.band === i).length;
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="band-head">
-        <span class="band-name" style="color:${B.color}">◎ ${B.code} · ${B.name}</span>
-        <span style="font-size:9.5px;color:var(--mut)">${count} sondaj</span>
+    const ys = Object.entries(B.yields).map(([k, v]) => `${RES[k].ic}${RES[k].name} ${v}/sa`).join("  ");
+    card(`
+      <div class="rowline">
+        <span class="tname" style="color:${B.color}">◎ ${B.code} · ${B.name}</span>
+        ${locked ? `<span class="tag lock">SEVİYE ${B.lvl}</span>` : `<span style="font-size:9px;color:var(--mut)">${count} sondaj</span>`}
       </div>
-      <div class="band-stats">
-        <div class="stat"><div class="k">VERİM</div><div class="v">${B.rate} ⬡/sa</div></div>
+      <div class="stats3">
+        <div class="stat"><div class="k">VERİM</div><div class="v">${ys}</div></div>
         <div class="stat"><div class="k">FIRTINA</div><div class="v" style="color:${B.risk >= 20 ? "var(--danger)" : "inherit"}">%${B.risk}/sa</div></div>
         <div class="stat"><div class="k">Z.GENLEŞME</div><div class="v">×${B.dil.toFixed(2)}</div></div>
       </div>
-      <div class="btnrow">
-        <button class="sbtn primary" data-band="${i}" ${state.grav < cost ? "disabled" : ""}>SONDAJ KONUŞLANDIR ⬡${fmtG(cost)}</button>
-      </div>`;
-    panel.appendChild(card);
+      ${locked ? "" : `<div class="btnrow"><button class="sbtn primary" data-band="${i}" ${!full && (cost === 0 || state.grav >= cost) ? "" : "disabled"}>${full ? "FİLO DOLU" : cost === 0 ? "İLK SONDAJ · BEDAVA" : `KONUŞLANDIR · ⬡${cost}`}</button></div>`}`,
+      locked ? "locked" : "");
   });
-  const note = document.createElement("div");
-  note.style.cssText = "font-size:9.5px;color:var(--mut);line-height:1.7;padding:2px 4px";
-  note.textContent = "Derin kuşaklar daha çok üretir ama kütleçekim fırtınaları sondajı devre dışı bırakabilir. Zaman genleşmesi: o kuşakta 1 saat, Dünya'da ×katsayı kadar geçer.";
-  panel.appendChild(note);
   panel.querySelectorAll("[data-band]").forEach(b => b.addEventListener("click", () => {
-    const c = rigCost();
-    if (state.grav < c) return;
-    state.grav -= c;
+    const c = state.rigs.length === 0 ? 0 : rigCost();
+    if (state.rigs.length >= maxRigs() || state.grav < c) return;
+    if (c > 0) { state.grav -= c; ksAdd(Math.round(c * 0.5)); }
     const rig = newRig(+b.dataset.band);
     state.rigs.push(rig);
     ledgerAdd(`${rig.name} konuşlandırma → ${BANDS[rig.band].code}`, -c);
+    addXp(10);
     toast(`🛰 ${rig.name}, ${BANDS[rig.band].name} kuşağında kazıyor.`);
     if (navigator.vibrate) navigator.vibrate(15);
     save(); renderPanel(); refreshHud();
   }));
 }
 
-/* ---------- CÜZDAN ---------- */
-function renderWallet() {
-  sheetTitle.textContent = "⬡ GRAV CÜZDANI";
+/* ---------- RAFİNERİ ---------- */
+function renderRefinery() {
+  sheetTitle.textContent = "⚗ ISRU RAFİNERİSİ";
   panel.innerHTML = "";
-  const head = document.createElement("div");
-  head.className = "card";
-  head.innerHTML = `
+  card(`
     <div class="rowline">
-      <div>
-        <div style="font-size:9px;letter-spacing:2px;color:var(--mut)">BAKİYE</div>
-        <div class="big">⬡ ${fmtG(state.grav)}</div>
-        <div style="font-size:9.5px;color:var(--mut);margin-top:4px">${state.wallet || ""}</div>
-      </div>
+      <div><div class="tname">⚡ PENROSE KOLEKTÖRÜ</div><div class="tsub">Ergosferden enerji hasadı — partiler ERG tüketir</div></div>
+      <div class="thi" style="font-size:13px">${Math.floor(state.erg)} / ${ergCap()}</div>
     </div>
-    <div class="band-stats" style="margin-top:12px">
-      <div class="stat"><div class="k">STAKE</div><div class="v">⬡ ${fmtG(state.staked)}</div></div>
-      <div class="stat"><div class="k">VERİM BOOST</div><div class="v" style="color:var(--ok)">+%${((stakeBoost() - 1) * 100).toFixed(0)}</div></div>
-      <div class="stat"><div class="k">FİLO</div><div class="v">${state.rigs.length} sondaj</div></div>
+    <div class="prog"><i style="width:${state.erg / ergCap() * 100}%"></i></div>
+    <div class="tsub" style="margin-top:6px">Üretim: +${fmt(ergRegen())} ERG/sa</div>`);
+
+  sect("AKTİF PARTİLER", `${state.batches.length}/${batchSlots()} slot`);
+  if (!state.batches.length) card(`<div class="tsub" style="text-align:center">Parti yok. Aşağıdan başlat — bitince gelip topla.</div>`);
+  state.batches.forEach((b, i) => {
+    const R = RECIPES.find(r => r.key === b.key);
+    const left = b.end - now();
+    const total = R.mins * 60000 * timeMult();
+    const ready = left <= 0;
+    card(`
+      <div class="rowline">
+        <div><div class="tname">${RES[b.key].ic} ${R.name}</div>
+        <div class="tsub">${b.qty * R.out} ${RES[b.key].full} ${ready ? "hazır" : "· kalan " + fmtDur(left)}</div></div>
+        ${ready ? `<button class="sbtn primary" style="flex:0;min-width:80px" data-collect="${i}">TOPLA</button>` : `<span class="tag busy">İŞLENİYOR</span>`}
+      </div>
+      ${ready ? "" : `<div class="prog"><i style="width:${(1 - left / total) * 100}%"></i></div>`}`);
+  });
+
+  sect("TARİFLER");
+  for (const R of RECIPES) {
+    const locked = state.level < R.lvl || (R.tech && !hasTech(R.tech));
+    const cap = batchCap();
+    const cost = {};
+    for (const [k, v] of Object.entries(R.inp)) cost[k] = v * cap;
+    const can = !locked && state.batches.length < batchSlots() && canPay(cost) && state.erg >= R.erg * cap;
+    card(`
+      <div class="rowline">
+        <div><div class="tname">${RES[R.key].ic} ${R.name}</div>
+        <div class="tsub">${costText(cost)} + ${R.erg * cap} ERG → <span class="thi">${R.out * cap} ${RES[R.key].full}</span> · ${fmtDur(R.mins * 60000 * timeMult())}</div></div>
+        ${locked ? `<span class="tag lock">${R.tech && state.level >= R.lvl ? "TEKNOLOJİ" : "SEVİYE " + R.lvl}</span>` : ""}
+      </div>
+      ${locked ? "" : `<div class="btnrow"><button class="sbtn cyan" data-recipe="${R.key}" ${can ? "" : "disabled"}>PARTİ BAŞLAT ×${cap}</button></div>`}`,
+      locked ? "locked" : "");
+  }
+  panel.querySelectorAll("[data-collect]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.collect;
+    const batch = state.batches[i];
+    if (!batch || batch.end > now()) return;
+    const R = RECIPES.find(r => r.key === batch.key);
+    state.inv[batch.key] += batch.qty * R.out;
+    state.batches.splice(i, 1);
+    addXp(15);
+    toast(`⚗ +${batch.qty * R.out} ${RES[batch.key].full} envantere eklendi.`);
+    save(); renderPanel(); refreshHud();
+  }));
+  panel.querySelectorAll("[data-recipe]").forEach(b => b.addEventListener("click", () => {
+    const R = RECIPES.find(r => r.key === b.dataset.recipe);
+    const cap = batchCap();
+    const cost = {};
+    for (const [k, v] of Object.entries(R.inp)) cost[k] = v * cap;
+    if (state.batches.length >= batchSlots() || !canPay(cost) || state.erg < R.erg * cap) return;
+    for (const [k, v] of Object.entries(cost)) state.inv[k] -= v;
+    state.erg -= R.erg * cap;
+    state.batches.push({ key: R.key, qty: cap, end: now() + R.mins * 60000 * timeMult() });
+    toast(`⚗ Parti başladı: ${R.name} — ${fmtDur(R.mins * 60000 * timeMult())}`);
+    if (navigator.vibrate) navigator.vibrate(12);
+    save(); renderPanel(); refreshHud();
+  }));
+}
+
+/* ---------- PAZAR ---------- */
+function renderMarket() {
+  sheetTitle.textContent = "⇄ EMTİA PAZARI & KONTRATLAR";
+  panel.innerHTML = "";
+  ensureContracts();
+
+  sect("GÜNLÜK KONTRATLAR", `seri: ${state.contracts.streak}🔥`);
+  state.contracts.list.forEach((c, i) => {
+    const have = state.inv[c.res] || 0;
+    card(`
+      <div class="rowline">
+        <div><div class="tname">${c.who}</div>
+        <div class="tsub">${c.qty} ${RES[c.res].full} teslim et → <span class="thi">⬡${c.grav}</span> + ${c.xp} XP</div></div>
+        ${c.done ? `<span class="tag done">TESLİM ✓</span>` :
+          `<button class="sbtn primary" style="flex:0;min-width:88px" data-contract="${i}" ${have >= c.qty ? "" : "disabled"}>${have >= c.qty ? "TESLİM ET" : `${fmt(have)}/${c.qty}`}</button>`}
+      </div>`);
+  });
+
+  sect("EMTİA PAZARI", "NPC günlük alım kotası");
+  for (const m of MARKET) {
+    const p = marketPrice(m);
+    const trend = marketPrice(m, now() + 1800000) > p;
+    const q = quotaLeft(m);
+    const have = Math.floor(state.inv[m.key] || 0);
+    const sellable = Math.min(have, q);
+    card(`
+      <div class="rowline">
+        <div><div class="tname">${RES[m.key].ic} ${RES[m.key].full}</div>
+        <div class="tsub">envanter ${fmt(have)} · kota ${q} · birim <span class="thi">⬡${p.toFixed(2)}</span> ${trend ? "<span style='color:var(--ok)'>▲</span>" : "<span style='color:var(--danger)'>▼</span>"}</div></div>
+      </div>
+      <div class="btnrow">
+        <button class="sbtn" data-sell="${m.key}" data-n="1" ${sellable >= 1 ? "" : "disabled"}>SAT ×1</button>
+        <button class="sbtn primary" data-sell="${m.key}" data-n="${sellable}" ${sellable >= 1 ? "" : "disabled"}>HEPSİNİ SAT (${sellable})</button>
+      </div>`);
+  }
+  panel.querySelectorAll("[data-contract]").forEach(b => b.addEventListener("click", () => {
+    const c = state.contracts.list[+b.dataset.contract];
+    if (!c || c.done || (state.inv[c.res] || 0) < c.qty) return;
+    state.inv[c.res] -= c.qty;
+    state.grav += c.grav;
+    c.done = true;
+    ledgerAdd(`Kontrat: ${c.who}`, +c.grav);
+    addXp(c.xp); ksAdd(5);
+    if (state.contracts.list.every(x => x.done)) {
+      state.contracts.streak++;
+      state.contracts.lastDay = dayIdx();
+      toast(`📋 Günün tüm kontratları tamam! Seri: ${state.contracts.streak}🔥`);
+    } else toast(`📋 Teslim edildi: +⬡${c.grav}, +${c.xp} XP`);
+    if (navigator.vibrate) navigator.vibrate(15);
+    save(); renderPanel(); refreshHud();
+  }));
+  panel.querySelectorAll("[data-sell]").forEach(b => b.addEventListener("click", () => {
+    const m = MARKET.find(x => x.key === b.dataset.sell);
+    const n = Math.min(+b.dataset.n, Math.floor(state.inv[m.key] || 0), quotaLeft(m));
+    if (n < 1) return;
+    const p = marketPrice(m);
+    const g = Math.round(p * n * 100) / 100;
+    state.inv[m.key] -= n;
+    state.sold.q[m.key] = (state.sold.q[m.key] || 0) + n;
+    state.grav += g;
+    ledgerAdd(`Pazar: ${n} ${RES[m.key].name} satışı`, +g);
+    addXp(Math.max(1, Math.round(g / 10)));
+    toast(`⇄ ${n} ${RES[m.key].full} satıldı: +⬡${fmtG(g)}`);
+    save(); renderPanel(); refreshHud();
+  }));
+}
+
+/* ---------- ÜS ---------- */
+function renderBase() {
+  const ks = ksLevel();
+  sheetTitle.textContent = "▣ KOMUTA MERKEZİ";
+  panel.innerHTML = "";
+
+  card(`
+    <div class="rowline">
+      <div><div class="tname">⭐ KOMUTAN SEVİYE ${state.level}</div>
+      <div class="tsub">XP ${fmt(state.xp)} / ${fmt(xpNeed(state.level))} · sonraki kilitler: ${nextUnlocks()}</div></div>
+    </div>
+    <div class="prog"><i style="width:${state.xp / xpNeed(state.level) * 100}%"></i></div>`);
+
+  card(`
+    <div class="rowline">
+      <div><div class="tname">👑 KONSORSİYUM STATÜSÜ: ${KS_NAMES[ks]}</div>
+      <div class="tsub">${KS_PERKS[ks]}<br>${ks < 10 ? `Sonraki: ${KS_NAMES[ks + 1]} — ${KS_THRESH[ks + 1] - state.ks.pts} puan kaldı · ${KS_PERKS[ks + 1]}` : "Zirvedesin."}</div></div>
+      <div class="thi" style="font-size:13px">${fmt(state.ks.pts)}p</div>
+    </div>
+    ${ks < 10 ? `<div class="prog"><i style="width:${(state.ks.pts - KS_THRESH[ks]) / (KS_THRESH[ks + 1] - KS_THRESH[ks]) * 100}%;background:var(--violet)"></i></div>` : ""}
+    <div class="tsub" style="margin-top:6px">Puan: günlük giriş +20 · kontrat +5 · sefer +3 · harcanan ⬡ ×0.5</div>`);
+
+  /* teknoloji ağacı */
+  sect("TEKNOLOJİ AĞACI", state.research ? "araştırma sürüyor" : "lab hazır");
+  if (state.research) {
+    const T = TECH.find(t => t.key === state.research.key);
+    const left = state.research.end - now();
+    card(`
+      <div class="rowline">
+        <div><div class="tname">🔬 ${T.name}</div><div class="tsub">kalan ${fmtDur(left)}</div></div>
+        <span class="tag busy">ARAŞTIRILIYOR</span>
+      </div>
+      <div class="prog"><i style="width:${(1 - left / (T.mins * 60000 * timeMult())) * 100}%;background:var(--violet)"></i></div>`);
+  }
+  let lastTier = 0;
+  for (const T of TECH) {
+    if (T.tier !== lastTier) {
+      lastTier = T.tier;
+      const d = document.createElement("div");
+      d.className = "tierhead";
+      d.textContent = `KATMAN ${T.tier}${T.tier === 4 ? " · KUANTUM ÇAĞI" : ""} — seviye ${TIER_LVL[T.tier]}+`;
+      panel.appendChild(d);
+    }
+    if (hasTech(T.key)) {
+      card(`<div class="rowline"><div class="tname" style="color:var(--ok)">✓ ${T.name}</div><span class="tag done">AKTİF</span></div>`);
+      continue;
+    }
+    const lvlLock = state.level < TIER_LVL[T.tier];
+    const reqLock = T.req && !hasTech(T.req);
+    const busy = !!state.research;
+    const can = !lvlLock && !reqLock && !busy && canPay(T.cost);
+    card(`
+      <div class="rowline">
+        <div><div class="tname">${T.name}</div>
+        <div class="tsub">${T.desc}<br>${costText(T.cost)} · ${fmtDur(T.mins * 60000 * timeMult())}${reqLock ? ` · gerektirir: ${TECH.find(x => x.key === T.req).name}` : ""}</div></div>
+        ${lvlLock ? `<span class="tag lock">SV.${TIER_LVL[T.tier]}</span>` : ""}
+      </div>
+      ${lvlLock ? "" : `<div class="btnrow"><button class="sbtn violet" data-tech="${T.key}" ${can ? "" : "disabled"}>${busy ? "LAB MEŞGUL" : reqLock ? "ÖN KOŞUL EKSİK" : "ARAŞTIR"}</button></div>`}`,
+      lvlLock ? "locked" : "");
+  }
+
+  /* cüzdan + stake + defter */
+  sect("CÜZDAN & STAKE");
+  card(`
+    <div class="rowline">
+      <div><div class="tname">⬡ ${fmtG(state.grav)} GRAV</div>
+      <div class="tsub">${state.wallet ? state.wallet.slice(0, 10) + "…" + state.wallet.slice(-6) : ""}<br>Stake: ⬡${fmt(state.staked)} → verim +%${((stakeBoost() - 1) * 100).toFixed(0)}</div></div>
     </div>
     <div class="btnrow">
-      <button class="sbtn primary" id="stakeBtn" ${state.grav < 100 ? "disabled" : ""}>⬡100 STAKE ET</button>
-      <button class="sbtn" id="unstakeBtn" ${state.staked < 100 ? "disabled" : ""}>⬡100 ÇÖZ</button>
-    </div>
-    <div style="font-size:9px;color:var(--mut);margin-top:8px;line-height:1.6">Her ⬡100 stake, tüm filonun verimine +%2 ekler (en çok +%50).</div>`;
-  panel.appendChild(head);
-
-  const lg = document.createElement("div");
-  lg.className = "card";
-  lg.innerHTML = `<div style="font-size:9.5px;letter-spacing:2px;color:var(--mut);margin-bottom:6px">İŞLEM DEFTERİ · TESTNET</div>`;
-  if (state.ledger.length === 0) {
-    lg.innerHTML += `<div style="font-size:10px;color:var(--mut);padding:8px 0">Henüz işlem yok.</div>`;
-  }
-  for (const tx of state.ledger.slice(0, 15)) {
+      <button class="sbtn primary" id="stakeBtn" ${state.grav >= 100 ? "" : "disabled"}>⬡100 STAKE ET</button>
+      <button class="sbtn" id="unstakeBtn" ${state.staked >= 100 ? "" : "disabled"}>⬡100 ÇÖZ</button>
+    </div>`);
+  const lg = card(`<div class="tsub" style="letter-spacing:2px;margin-bottom:4px">İŞLEM DEFTERİ · TESTNET</div>`);
+  for (const tx of state.ledger.slice(0, 12)) {
     const d = new Date(tx.time);
     const hh = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
     const cls = tx.amount > 0 ? "plus" : tx.amount < 0 ? "minus" : "";
     const amt = tx.amount === 0 ? "—" : (tx.amount > 0 ? "+" : "−") + "⬡" + fmtG(Math.abs(tx.amount));
-    lg.innerHTML += `
-      <div class="ledger-item">
-        <div><div>${tx.label}</div><div class="h">${tx.hash} · ${hh}</div></div>
-        <div class="amt ${cls}">${amt}</div>
-      </div>`;
+    lg.innerHTML += `<div class="ledger-item"><div><div>${tx.label}</div><div class="h">${tx.hash} · ${hh}</div></div><div class="amt ${cls}">${amt}</div></div>`;
   }
-  panel.appendChild(lg);
 
+  panel.querySelectorAll("[data-tech]").forEach(b => b.addEventListener("click", () => {
+    const T = TECH.find(t => t.key === b.dataset.tech);
+    if (state.research || !canPay(T.cost) || state.level < TIER_LVL[T.tier] || (T.req && !hasTech(T.req))) return;
+    pay(T.cost, `Araştırma: ${T.name}`);
+    state.research = { key: T.key, end: now() + T.mins * 60000 * timeMult() };
+    toast(`🔬 Araştırma başladı: ${T.name} — ${fmtDur(T.mins * 60000 * timeMult())}`);
+    save(); renderPanel(); refreshHud();
+  }));
   $("stakeBtn")?.addEventListener("click", () => {
     if (state.grav < 100) return;
     state.grav -= 100; state.staked += 100;
     ledgerAdd("Stake kilidi", -100);
-    toast(`🔒 ⬡100 stake edildi — filo verimi +%${((stakeBoost() - 1) * 100).toFixed(0)}`);
+    toast(`🔒 ⬡100 stake edildi — verim +%${((stakeBoost() - 1) * 100).toFixed(0)}`);
     save(); renderPanel(); refreshHud();
   });
   $("unstakeBtn")?.addEventListener("click", () => {
@@ -887,16 +1281,27 @@ function renderWallet() {
     save(); renderPanel(); refreshHud();
   });
 }
+function nextUnlocks() {
+  const pend = [];
+  for (const B of BANDS) if (B.lvl > state.level) { pend.push(`sv${B.lvl} ${B.code}`); break; }
+  for (const R of RECIPES) if (R.lvl > state.level) { pend.push(`sv${R.lvl} ${RES[R.key].name}`); break; }
+  for (const [t, l] of Object.entries(TIER_LVL)) if (l > state.level) { pend.push(`sv${l} T${t} teknoloji`); break; }
+  return pend.slice(0, 2).join(" · ") || "hepsi açık";
+}
 
-/* ---------- CLAIM ---------- */
-claimBtn.addEventListener("click", () => {
-  const total = totalAccrued();
-  if (total <= 0) return;
-  for (const rig of state.rigs) rig.accrued = 0;
-  state.grav += total;
-  ledgerAdd("Madencilik ödülü talebi", +total);
+/* ---------- HASAT ---------- */
+$("claimbtn").addEventListener("click", () => {
+  const t = totalAccrued();
+  const sum = Object.values(t).reduce((a, b) => a + b, 0);
+  if (sum < 1) return;
+  const parts = [];
+  for (const [k, v] of Object.entries(t)) {
+    if (v >= 0.5) { state.inv[k] = (state.inv[k] || 0) + Math.floor(v); parts.push(`+${Math.floor(v)} ${RES[k].name}`); }
+  }
+  for (const rig of state.rigs) rig.acc = {};
   claimWave = 1;
-  toast(`⬡ ${fmtG(total)} GRAV cüzdana aktarıldı · ${state.ledger[0].hash}`);
+  addXp(5);
+  toast(`📦 Hasat toplandı: ${parts.join(" · ")}`);
   if (navigator.vibrate) navigator.vibrate([15, 40, 25]);
   save(); refreshHud(); renderPanel();
 });
@@ -914,23 +1319,38 @@ function toast(msg, bad) {
 
 /* ---------- HUD ---------- */
 function refreshHud() {
-  elBal.textContent = fmtG(state.grav);
-  elAccr.textContent = fmtG(totalAccrued());
-  elApr.textContent = `filo verimi +${fmtG(fleetRate())}/sn`;
-  const has = totalAccrued() > 0.0001;
-  claimBtn.disabled = !has;
-  claimPill.classList.toggle("pulse", has);
-  $("addr").textContent = state.wallet ? state.wallet.slice(0, 6) + "…" + state.wallet.slice(-4) : "bağlı değil";
+  $("bal").textContent = fmtG(state.grav);
+  $("lvlbadge").textContent = state.level;
+  $("ksname").textContent = KS_NAMES[ksLevel()];
+  $("xpfill").style.width = (state.xp / xpNeed(state.level) * 100) + "%";
+  /* kaynak şeridi */
+  const keys = ["H2O", "HE3", "PGM", "EXO", "YAKIT", "PELET", "BILESEN", "QCORE"];
+  $("resstrip").innerHTML = keys
+    .filter(k => (state.inv[k] || 0) >= 1 || ["H2O", "HE3", "PGM"].includes(k))
+    .map(k => `<span class="reschip">${RES[k].ic}<span class="k">${RES[k].name}</span>${fmt(Math.floor(state.inv[k] || 0))}</span>`)
+    .join("") + `<span class="reschip">⚡<span class="k">ERG</span>${Math.floor(state.erg)}</span>`;
+  /* hasat hapı */
+  const t = totalAccrued();
+  const sum = Object.values(t).reduce((a, b) => a + b, 0);
+  $("accrued").textContent = sum < 1 ? "—" :
+    Object.entries(t).filter(([, v]) => v >= 1).map(([k, v]) => `${RES[k].ic}${fmt(Math.floor(v))}`).join(" ");
+  $("claimbtn").disabled = sum < 1;
+  $("claimpill").classList.toggle("pulse", sum >= 1);
+  /* sekme uyarıları */
+  document.querySelector('[data-tab="refinery"]').classList.toggle("alert", state.batches.some(b => b.end <= now()));
+  ensureContracts();
+  document.querySelector('[data-tab="market"]').classList.toggle("alert",
+    state.contracts.list.some(c => !c.done && (state.inv[c.res] || 0) >= c.qty));
+  document.querySelector('[data-tab="base"]').classList.toggle("alert",
+    !!(state.research && state.research.end <= now()));
 }
 
 /* ================================================================
-   GİRDİ — sürükle: kamera (madencilik pasif, dokunmak gerekmez)
+   GİRDİ — sürükle: kamera
    ================================================================ */
 let camYaw = 0.6, camPitch = 0;
 let pDown = null;
-canvas.addEventListener("pointerdown", (e) => {
-  pDown = { x: e.clientX, y: e.clientY, yaw: camYaw, pitch: camPitch };
-});
+canvas.addEventListener("pointerdown", (e) => { pDown = { x: e.clientX, y: e.clientY, yaw: camYaw, pitch: camPitch }; });
 canvas.addEventListener("pointermove", (e) => {
   if (!pDown) return;
   camYaw = pDown.yaw + (e.clientX - pDown.x) * 0.004;
@@ -943,47 +1363,54 @@ canvas.addEventListener("pointercancel", () => { pDown = null; });
    ANA DÖNGÜ
    ================================================================ */
 let last = performance.now();
-let hudAcc = 0, qualAcc = 0, panelAcc = 0;
+let hudAcc = 0, qualAcc = 0;
 let frameParity = false;
-
-/* arka plandan dönüşte görüntüyü tazele */
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) { last = performance.now(); resize(); }
+  else save();
 });
 
-function loop(now) {
+function loop(nowMs) {
   requestAnimationFrame(loop);
-  let dt = (now - last) / 1000;
-  last = now;
+  let dt = (nowMs - last) / 1000;
+  last = nowMs;
   if (dt > 0.25) dt = 0.25;
 
-  /* --- pasif üretim + fırtına riski + sefer çözümü --- */
+  /* --- simülasyon --- */
   for (const rig of state.rigs) {
     if (rig.status === "mining") {
-      rig.accrued += rigRate(rig) * dt;
-      const pStorm = BANDS[rig.band].risk / 100 / 3600;   /* sn başına olasılık */
+      for (const [k, v] of Object.entries(rigYields(rig)))
+        rig.acc[k] = (rig.acc[k] || 0) + v * dt;
+      const pStorm = BANDS[rig.band].risk / 100 / 3600 * stormRiskMult() * SPEED;
       if (Math.random() < pStorm * dt) {
         rig.status = "damaged";
         eventFlash = 1;
         ledgerAdd(`${rig.name} fırtınada hasar aldı`, 0);
-        toast(`⚡ Kütleçekim fırtınası! ${rig.name} devre dışı — onarım gerekli.`, true);
+        toast(`⚡ Kütleçekim fırtınası! ${rig.name} devre dışı.`, true);
         if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+        if (activeTab === "fleet") renderPanel();
       }
-    } else if (rig.status === "expedition" && Date.now() >= rig.expEnd) {
+    } else if (rig.status === "expedition" && now() >= rig.expEnd) {
       resolveExpedition(rig, false);
       if (activeTab) renderPanel();
     }
+  }
+  state.erg = Math.min(ergCap(), state.erg + ergRegen() / 3600 * dt * SPEED);
+  if (state.research && now() >= state.research.end) {
+    const T = TECH.find(t => t.key === state.research.key);
+    state.tech[T.key] = true;
+    state.research = null;
+    addXp(40); ksAdd(10);
+    toast(`🔬 ARAŞTIRMA TAMAM: ${T.name} — ${T.desc}`);
+    if (navigator.vibrate) navigator.vibrate([20, 40, 20, 40, 20]);
+    if (activeTab === "base") renderPanel();
   }
 
   eventFlash = Math.max(0, eventFlash - dt * 1.2);
   claimWave = Math.max(0, claimWave - dt * 1.5);
 
   hudAcc += dt;
-  if (hudAcc > 0.15) { hudAcc = 0; refreshHud(); }
-  panelAcc += dt;
-  if (panelAcc > 5 && activeTab === "fleet" && sheet.classList.contains("open")) {
-    panelAcc = 0; renderPanel();
-  }
+  if (hudAcc > 0.25) { hudAcc = 0; refreshHud(); }
 
   /* --- uyarlanabilir kalite --- */
   frameMs = frameMs * 0.92 + (dt * 1000) * 0.08;
@@ -1002,21 +1429,17 @@ function loop(now) {
   }
 
   /* --- render --- */
-  if (gl.isContextLost()) return;   /* restored olayında kaldığı yerden sürer */
-
-  /* panel açıkken GPU'yu rahatlat: kare atlat + adım sınırla
-     (zayıf telefonlarda panel + shader çakışması donmaya yol açıyordu) */
+  if (gl.isContextLost()) return;
   const sheetOpen = sheet.classList.contains("open");
   frameParity = !frameParity;
   if (sheetOpen && frameParity) return;
 
   const occ = [0, 0, 0, 0];
-  for (const rig of state.rigs) {
+  for (const rig of state.rigs)
     if (rig.status !== "damaged") occ[rig.band] = Math.min(1, occ[rig.band] + 0.4);
-  }
 
   gl.uniform2f(U.uRes, canvas.width, canvas.height);
-  gl.uniform1f(U.uTime, now / 1000);
+  gl.uniform1f(U.uTime, nowMs / 1000);
   gl.uniform1f(U.uCamYaw, camYaw);
   gl.uniform1f(U.uCamPitch, camPitch);
   gl.uniform4f(U.uBands, occ[0], occ[1], occ[2], occ[3]);
@@ -1027,13 +1450,19 @@ function loop(now) {
 }
 
 /* ================================================================
-   BAŞLANGIÇ — cüzdan bağlama
+   BAŞLANGIÇ
    ================================================================ */
-const offlineGain = load();
-if (offlineGain > 0.001) {
+const offlineReport = load();
+ensureContracts();
+/* günlük giriş statü puanı */
+if (state.ks.lastLogin !== dayIdx()) {
+  state.ks.lastLogin = dayIdx();
+  ksAdd(20);
+}
+if (offlineReport.length) {
   const m = $("offlineMsg");
   m.style.display = "block";
-  m.textContent = `🛰 Sen yokken filon ⬡ ${fmtG(offlineGain)} GRAV üretti — birikende hazır.`;
+  m.textContent = offlineReport.join(" ");
 }
 refreshHud();
 
@@ -1041,7 +1470,7 @@ const connBtn = $("connectBtn");
 connBtn.addEventListener("click", () => {
   if (connBtn.dataset.ready) {
     $("connect").classList.add("hide");
-    if (!state.rigs.length && state.grav >= 20) openTab("orbits");
+    if (!state.rigs.length) openTab("orbits");
     return;
   }
   connBtn.querySelector(".spin").style.display = "inline-block";
@@ -1063,6 +1492,9 @@ connBtn.addEventListener("click", () => {
     if (navigator.vibrate) navigator.vibrate(20);
   }, 1100);
 });
+
+/* dev modunda test kancası */
+if (SPEED > 1) { window.__state = state; window.__save = save; window.__refresh = refreshHud; }
 
 requestAnimationFrame(loop);
 </script>

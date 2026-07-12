@@ -1,56 +1,67 @@
 # GARGANTUA · GRAV PROTOKOLÜ 🕳⬡
 
 Interstellar filmindeki Gargantua kara deliğinden esinlenen, **pasif** uzay
-madenciliği web3 miniapp'i. Tap-to-earn değil: strateji kur, protokol çalışsın.
-Derleme adımı yok — tek bir `index.html` dosyası.
+madenciliği web3-tarzı miniapp'i. Tap-to-earn değil: strateji kur, protokol
+çalışsın. Derleme adımı yok — tek bir `index.html` dosyası.
 
-## Oynanış (pasif madencilik)
+## Sistemler (v3)
 
-- **Cüzdan bağla** (yerel simülasyon — zincir bağlantısı yoktur, adres ve
-  işlem hash'leri cihazda üretilir) ve ⬡ GRAV bakiyeni yönet.
-- **Sondaj konuşlandır** — 4 yörünge kuşağından birini seç:
+### Kaynaklar — gerçek uzay madenciliği hedefleri
+| Kaynak | Gerçek karşılığı | Rolü |
+|---|---|---|
+| 💧 H₂O | Su buzu — roket yakıtı hammaddesi | Elektrolizle yakıta dönüşür |
+| ☄ ³He | Helyum-3 — füzyon yakıtı adayı | Füzyon peleti üretimi |
+| ⬙ PGM | Platin grubu metaller | Gemi bileşeni, yükseltmeler |
+| ✦ EXO | Egzotik madde (olay ufku yakını) | Kuantum teknolojileri |
+| ⚡ ERG | Penrose süreci enerji hasadı | Rafineri partilerinin "elektriği" |
 
-  | Kuşak | Verim | Fırtına riski | Zaman genleşmesi |
-  |---|---|---|---|
-  | B-0 Dış Kuşak | 12 ⬡/sa | %2/sa | ×1.02 |
-  | B-1 Orta Disk | 30 ⬡/sa | %8/sa | ×1.20 |
-  | B-2 İç Kenar | 75 ⬡/sa | %20/sa | ×2.50 |
-  | B-3 Foton Sınırı | 180 ⬡/sa | %45/sa | ×9.00 |
+### Çekirdek döngü
+1. **Sondaj konuşlandır** — 4 yörünge kuşağı, her birinin kaynak karışımı,
+   fırtına riski ve zaman genleşmesi farklı. Pasif üretim; hasadı topla.
+2. **Rafine et** — zamanlı partiler (30dk–8sa): H₂O→LH₂ yakıt, ³He→füzyon
+   peleti, PGM→gemi bileşeni, EXO→kuantum çekirdeği. ERG tüketir.
+3. **Sat / teslim et** — dalgalı fiyatlı emtia pazarı (günlük NPC alım
+   kotası) + günlük kontratlar (seri bonusu). ⬡ GRAV yalnız buradan,
+   seferlerden ve seviye ödüllerinden kazanılır — kotalı musluklar.
+4. **Sefer** — yakıt harca, sondajı riskli derin sefere yolla: GRAV + EXO
+   kumarı.
 
-- **Pasif üretim** — sondajlar sen uygulamada olmasan da kazar
-  (çevrimdışı 24 saate kadar tam verim). Biriken GRAV'ı **TALEP ET** ile
-  cüzdana geçir; her talep, sahte tx hash'iyle işlem defterine yazılır.
-- **Kütleçekim fırtınaları** — derin kuşaklarda sondajlar hasar alabilir;
-  onarım GRAV'a mal olur. Risk/getiri dengesi oyunun kalbi.
-- **Derin Sefer** — sondajı 15 dakikalığına kilitle: 4× toplu ödül,
-  başarı şansı kuşağın riskine bağlı; başarısızlıkta sondaj hasar alır.
-- **Stake** — her ⬡100 kilit, tüm filonun verimine +%2 ekler (maks +%50).
-- **Geliştirme** — sondaj seviyesi başına verim ×1.6.
-- İlerleme `localStorage`'a otomatik kaydedilir.
+### Komutan Seviyesi
+Her eylem XP verir. Seviye; yörünge kuşaklarını (B-1 sv3 → B-3 sv10),
+rafineri tariflerini/slotlarını ve teknoloji katmanlarını açar.
+
+### Teknoloji Ağacı — 4 katman, gerçek terimler
+- **K1:** İyon İtki · Spektrometre Dizisi · Elektroliz Tesisi
+- **K2:** ISRU Rafinerisi · Kütle Sürücüsü · MHD Kalkanı
+- **K3:** ³He Füzyon Reaktörü · Lagrange Deposu (L4) · Robotik Sondaj Hattı
+- **K4 · Kuantum Çağı:** Kuantum Radar · Kuantum Dolanıklık İletişimi ·
+  **Alcubierre Sürücü Prototipi**
+
+Araştırma kaynak + GRAV + zaman ister; tek laboratuvar slotu vardır.
+
+### Konsorsiyum Statüsü (VIP)
+Günlük giriş, kontrat, sefer ve GRAV harcamalarından puan birikir.
+ADAY → YÖNETİM KURULU arası 11 rütbe; kalıcı ayrıcalıklar: verim +%2/rütbe,
+onarım indirimi, ekstra kontrat, ERG üretimi, ekstra rafineri slotu, süre
+kısaltması…
+
+### Diğer
+- Kütleçekim fırtınaları sondajları vurur (ücretli onarım), MHD/Kuantum
+  Radar riski düşürür.
+- Çevrimdışı üretim 24 saate kadar (Lagrange Deposu ile 48, statüyle +12).
+- Stake: her ⬡100 kilit → verim +%2 (maks +%50).
+- Sahte cüzdan/tx-hash'li işlem defteri (yerel simülasyon — zincir yok;
+  TON entegrasyonu yol haritasında F2+).
+- `?dev=1` parametresi tüm süreleri 60× hızlandırır (test için).
 
 ## Görselleştirme
-
-Kara delik, WebGL fragment shader'ında gerçek zamanlı render edilir:
-
-- **Yerçekimsel mercekleme** — foton jeodeziği yaklaşımı
-  (`a = -1.5 h² r̂ / r⁴`); yıldız alanının bükülmesi ve diskin gölge
-  üstünde/altında görünen ikinci görüntüsü kendiliğinden oluşur.
-- **Akresyon diski** — diferansiyel dönüşlü prosedürel gaz iplikçikleri,
-  akkor beyaz → derin turuncu sıcaklık gradyanı, **Doppler ışıması**
-  (yaklaşan taraf parlak/mavimsi), foton halkası, ton eşleme.
-- **Canlı filo görselleştirmesi** — dolu kuşaklar diskte renkli halka
-  olarak yanar; her kuşakta yörüngede dönen sondaj kıvılcımları görünür.
-  Claim anında kuşaklardan parlama dalgası yayılır, fırtınada ekran
-  kenarları kızıl flaş verir.
-- **Uyarlanabilir kalite** — kare süresine göre çözünürlük ve ışın adımı
-  sayısı otomatik ayarlanır; düşük donanımlı telefonlarda da akıcı.
+WebGL fragment shader: foton jeodeziği yaklaşımıyla yerçekimsel mercekleme,
+diferansiyel dönüşlü akresyon diski, Doppler ışıması, foton halkası.
+Dolu kuşaklar diskte renkli halka + dönen sondaj kıvılcımları olarak görünür.
+Uyarlanabilir kalite + WebGL context-loss kurtarma.
 
 ## Çalıştırma
-
 ```bash
 cd gargantua-mining
-python3 -m http.server 8080
-# http://localhost:8080  (veya dosyayı doğrudan tarayıcıda aç)
+python3 -m http.server 8080   # http://localhost:8080
 ```
-
-Telefonda tam ekran deneyim için tarayıcıdan "Ana ekrana ekle" kullanılabilir.
