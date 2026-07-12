@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GARGANTUA MINING</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25'%3E%3Cstop offset='40%25' stop-color='%23000'/%3E%3Cstop offset='55%25' stop-color='%23ffb35c'/%3E%3Cstop offset='75%25' stop-color='%23b95c1a'/%3E%3Cstop offset='100%25' stop-color='%23000'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Cellipse cx='32' cy='32' rx='30' ry='11' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%23000' stroke='%23ffd9a0' stroke-width='1.5'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --amber: #ffb35c;
+    --amber-dim: #b97a35;
+    --hot: #ff5c3c;
+    --cyan: #7fd8e8;
+    --panel: rgba(8, 10, 16, 0.82);
+    --line: rgba(255, 179, 92, 0.22);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: "SF Mono", "Cascadia Mono", "Roboto Mono", ui-monospace, monospace;
+    color: #e8e2d6;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #gl {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  /* ---------- HUD üst bar ---------- */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: calc(var(--safe-top) + 10px) 14px 10px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
+    z-index: 10;
+  }
+  .res {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .res .label {
+    font-size: 10px; letter-spacing: 2px; color: var(--amber-dim);
+  }
+  .res .value {
+    font-size: 22px; font-weight: 700; color: var(--amber);
+    text-shadow: 0 0 12px rgba(255, 179, 92, 0.45);
+    font-variant-numeric: tabular-nums;
+  }
+  .res .rate {
+    font-size: 11px; color: #9a938a;
+  }
+  #dilation {
+    text-align: right; font-size: 10px; letter-spacing: 1px;
+    color: var(--cyan); line-height: 1.6;
+  }
+  #dilation b { font-size: 14px; display: block; }
+
+  /* ---------- ısı göstergesi ---------- */
+  #heatwrap {
+    position: fixed; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 34vh; max-height: 260px;
+    border: 1px solid var(--line); border-radius: 6px;
+    overflow: hidden; z-index: 10; pointer-events: none;
+    background: rgba(0,0,0,0.4);
+  }
+  #heatbar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 0%;
+    background: linear-gradient(to top, #ff8c3c, #ff3c2e);
+    transition: height 0.15s linear;
+  }
+  #heatlabel {
+    position: fixed; right: 4px; top: calc(50% + 18vh);
+    writing-mode: vertical-rl; font-size: 9px; letter-spacing: 2px;
+    color: var(--amber-dim); z-index: 10; pointer-events: none;
+  }
+
+  /* ---------- yörünge kaydırıcısı ---------- */
+  #orbitwrap {
+    position: fixed; left: 12px; right: 12px;
+    bottom: calc(var(--safe-bottom) + 86px);
+    z-index: 10;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  #orbitwrap .row {
+    display: flex; justify-content: space-between;
+    font-size: 9px; letter-spacing: 1.5px; color: var(--amber-dim);
+  }
+  #orbit {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 30px; background: transparent;
+    touch-action: pan-x;
+  }
+  #orbit::-webkit-slider-runnable-track {
+    height: 3px; border-radius: 2px;
+    background: linear-gradient(to right, #3f6d5a, #b97a35, #ff3c2e);
+  }
+  #orbit::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px; margin-top: -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffe0b0, #ffb35c 60%, #7a4a1a);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 14px rgba(255,179,92,0.8);
+  }
+  #orbit::-moz-range-track {
+    height: 3px; border-radius: 2px;
+    background: linear-gradient(to right, #3f6d5a, #b97a35, #ff3c2e);
+  }
+  #orbit::-moz-range-thumb {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffe0b0, #ffb35c 60%, #7a4a1a);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 14px rgba(255,179,92,0.8);
+  }
+
+  /* ---------- alt bar ---------- */
+  #bottombar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 10px 12px calc(var(--safe-bottom) + 12px);
+    display: flex; gap: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    z-index: 11;
+  }
+  .btn {
+    flex: 1;
+    padding: 13px 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--amber);
+    font-family: inherit;
+    font-size: 12px; letter-spacing: 2px; font-weight: 700;
+    text-align: center;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .btn:active { background: rgba(255,179,92,0.15); }
+
+  /* ---------- yükseltme çekmecesi ---------- */
+  #drawer {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    max-height: 72vh;
+    background: rgba(5, 7, 12, 0.96);
+    border-top: 1px solid var(--line);
+    border-radius: 18px 18px 0 0;
+    transform: translateY(105%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 20;
+    display: flex; flex-direction: column;
+    padding-bottom: calc(var(--safe-bottom) + 10px);
+  }
+  #drawer.open { transform: translateY(0); }
+  #drawer header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 18px 10px;
+  }
+  #drawer header h2 {
+    font-size: 13px; letter-spacing: 3px; color: var(--amber);
+  }
+  #drawer header .close {
+    font-size: 20px; color: #888; padding: 4px 10px;
+  }
+  #upgrades {
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 4px 14px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    touch-action: pan-y;
+  }
+  .upg {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255,179,92,0.03);
+  }
+  .upg .icon { font-size: 24px; width: 34px; text-align: center; }
+  .upg .info { flex: 1; min-width: 0; }
+  .upg .info .name { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #f0e8da; }
+  .upg .info .desc { font-size: 10px; color: #8d867c; margin-top: 3px; line-height: 1.5; }
+  .upg .info .lvl { font-size: 10px; color: var(--cyan); margin-top: 3px; }
+  .upg .buy {
+    padding: 10px 12px; min-width: 86px;
+    border-radius: 9px; border: 1px solid var(--amber-dim);
+    background: rgba(255,179,92,0.1);
+    color: var(--amber); font-family: inherit; font-size: 11px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .upg .buy:disabled { opacity: 0.35; border-color: #444; color: #777; }
+  .upg .buy:not(:disabled):active { background: rgba(255,179,92,0.25); }
+
+  /* ---------- uyarılar / efektler ---------- */
+  #overheat {
+    position: fixed; top: 32%; left: 50%; transform: translateX(-50%);
+    padding: 10px 22px;
+    border: 1px solid var(--hot); border-radius: 10px;
+    color: var(--hot); background: rgba(30,4,0,0.85);
+    font-size: 12px; letter-spacing: 3px; font-weight: 700;
+    z-index: 15; pointer-events: none;
+    display: none;
+    animation: blink 0.8s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  .float {
+    position: fixed;
+    color: var(--amber);
+    font-size: 15px; font-weight: 700;
+    text-shadow: 0 0 8px rgba(255,179,92,0.7);
+    pointer-events: none; z-index: 12;
+    animation: floatUp 1.1s ease-out forwards;
+    font-variant-numeric: tabular-nums;
+  }
+  .float.crit { color: #ffe9a0; font-size: 19px; }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+    15%  { opacity: 1; transform: translate(-50%, -14px) scale(1.05); }
+    100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+  }
+
+  #toast {
+    position: fixed; top: calc(var(--safe-top) + 74px); left: 50%;
+    transform: translateX(-50%);
+    max-width: 88vw;
+    padding: 10px 16px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 11px; line-height: 1.6; text-align: center;
+    z-index: 30; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ---------- giriş ekranı ---------- */
+  #intro {
+    position: fixed; inset: 0; z-index: 40;
+    background: radial-gradient(ellipse at 50% 60%, rgba(30,18,8,0.9), rgba(0,0,0,0.97));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px; padding: 24px; text-align: center;
+    transition: opacity 0.6s;
+  }
+  #intro.hide { opacity: 0; pointer-events: none; }
+  #intro h1 {
+    font-size: 30px; letter-spacing: 8px; font-weight: 700;
+    color: var(--amber);
+    text-shadow: 0 0 30px rgba(255,140,60,0.6);
+  }
+  #intro .sub { font-size: 11px; letter-spacing: 4px; color: var(--amber-dim); }
+  #intro p { font-size: 12px; color: #a89e90; max-width: 340px; line-height: 1.8; }
+  #intro button {
+    margin-top: 8px;
+    padding: 15px 44px;
+    background: transparent;
+    border: 1px solid var(--amber);
+    border-radius: 12px;
+    color: var(--amber); font-family: inherit;
+    font-size: 14px; letter-spacing: 4px; font-weight: 700;
+    box-shadow: 0 0 24px rgba(255,140,60,0.25), inset 0 0 14px rgba(255,140,60,0.08);
+  }
+  #intro button:active { background: rgba(255,179,92,0.15); }
+  #intro .offline {
+    font-size: 11px; color: var(--cyan); line-height: 1.7;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+
+<div id="topbar">
+  <div class="res">
+    <span class="label">EGZOTİK MADDE</span>
+    <span class="value" id="em">0</span>
+    <span class="rate" id="rate">+0 /sn</span>
+  </div>
+  <div id="dilation">
+    ZAMAN GENLEŞMESİ<b id="dilf">×1.0</b>
+    <span id="earth">Dünya: 0s</span>
+  </div>
+</div>
+
+<div id="heatwrap"><div id="heatbar"></div></div>
+<div id="heatlabel">ISI</div>
+
+<div id="overheat">⚠ AŞIRI ISINMA — SOĞUTULUYOR</div>
+
+<div id="orbitwrap">
+  <div class="row">
+    <span>GÜVENLİ YÖRÜNGE</span>
+    <span id="orbmult">×1.0 verim</span>
+    <span>OLAY UFKU</span>
+  </div>
+  <input type="range" id="orbit" min="0" max="100" value="20">
+</div>
+
+<div id="bottombar">
+  <button class="btn" id="openUpg">⛏ YÜKSELTMELER</button>
+</div>
+
+<div id="drawer">
+  <header>
+    <h2>⛏ MADEN İSTASYONU</h2>
+    <span class="close" id="closeUpg">✕</span>
+  </header>
+  <div id="upgrades"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="intro">
+  <div class="sub">ENDURANCE GÖREVİ · KAYIT 042</div>
+  <h1>GARGANTUA<br>MINING</h1>
+  <p>Dev kara deliğin akresyon diskinden egzotik madde topla.
+     Yörüngeni alçalt: verim artar ama gemin ısınır ve zaman
+     Dünya'dakilerden daha yavaş akar.<br><br>
+     Diske dokun → madde hasat et.<br>Sürükle → kamerayı çevir.</p>
+  <div class="offline" id="offlineMsg"></div>
+  <button id="startBtn">GÖREVE BAŞLA</button>
+</div>
+
+<script>
+"use strict";
+
+/* ================================================================
+   GARGANTUA — WebGL gerçek zamanlı kara delik render'ı
+   Schwarzschild fotonu yaklaşımı: ışınlar h²'ye bağlı ivmeyle
+   bükülür, ince akresyon diski + Doppler ışıması + foton halkası.
+   ================================================================ */
+
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl", { antialias: false, alpha: false, depth: false, stencil: false })
+        || canvas.getContext("experimental-webgl");
+
+const VERT = `
+attribute vec2 aPos;
+void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+`;
+
+const FRAG = `
+precision highp float;
+
+uniform vec2  uRes;
+uniform float uTime;
+uniform float uCamYaw;    // kullanıcı sürüklemesi
+uniform float uCamPitch;
+uniform float uOrbit;     // 0 (uzak) .. 1 (olay ufku) — maden halkası
+uniform float uFlash;     // madencilik atış parlaması 0..1
+uniform float uHeat;      // 0..1 ekran kenarı kızarması
+uniform float uSteps;     // kalite (adım sayısı)
+
+#define RS 1.0            /* Schwarzschild yarıçapı */
+#define DISK_IN  2.6
+#define DISK_OUT 9.0
+
+/* ---- yardımcılar ---- */
+float hash12(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash12(i);
+  float b = hash12(i + vec2(1.0, 0.0));
+  float c = hash12(i + vec2(0.0, 1.0));
+  float d = hash12(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.55;
+  for (int i = 0; i < 4; i++) {
+    v += a * noise(p);
+    p = p * 2.13 + vec2(7.7, 3.1);
+    a *= 0.5;
+  }
+  return v;
+}
+
+/* ---- yıldız alanı (bükülmüş ışın yönünden örneklenir) ---- */
+vec3 stars(vec3 rd) {
+  vec3 col = vec3(0.0);
+  vec2 uv = vec2(atan(rd.z, rd.x), asin(clamp(rd.y, -1.0, 1.0)));
+  for (int l = 0; l < 2; l++) {
+    float scale = l == 0 ? 90.0 : 160.0;
+    vec2 grid = uv * scale;
+    vec2 id = floor(grid);
+    float h = hash12(id + float(l) * 17.0);
+    vec2 c = fract(grid) - 0.5;
+    float star = smoothstep(0.08, 0.0, length(c + (vec2(h, fract(h * 57.0)) - 0.5) * 0.6));
+    float bright = step(0.985, h) * (0.4 + 0.6 * fract(h * 91.0));
+    vec3 tint = mix(vec3(0.7, 0.8, 1.0), vec3(1.0, 0.85, 0.7), fract(h * 33.0));
+    col += star * bright * tint;
+  }
+  /* soluk galaktik pus */
+  col += vec3(0.012, 0.014, 0.02) * fbm(uv * 4.0);
+  return col;
+}
+
+/* ---- disk yüzey rengi ---- */
+vec3 diskShade(vec3 p, vec3 rd, out float alpha) {
+  float r = length(p.xz);
+  float t = clamp((r - DISK_IN) / (DISK_OUT - DISK_IN), 0.0, 1.0);
+
+  /* diferansiyel dönüş: iç kısım hızlı döner */
+  float omega = 1.6 / (pow(r, 1.5) + 0.2);
+  float ang = atan(p.z, p.x) - uTime * omega;
+
+  /* gaz iplikçikleri */
+  float bands = fbm(vec2(r * 3.0, ang * 5.0));
+  float streaks = fbm(vec2(r * 9.0 - uTime * 0.15, ang * 14.0));
+  float density = bands * 0.7 + streaks * 0.5;
+  density *= smoothstep(1.0, 0.75, t);          /* dış kenar sönümü */
+  density *= smoothstep(0.0, 0.12, t) + 0.35;   /* iç kenar keskin ama parlak */
+
+  /* sıcaklık gradyanı: iç = akkor beyaz, dış = derin turuncu */
+  vec3 hot  = vec3(1.35, 1.22, 1.05);
+  vec3 mid  = vec3(1.30, 0.72, 0.28);
+  vec3 cool = vec3(0.55, 0.18, 0.05);
+  vec3 col = mix(hot, mix(mid, cool, smoothstep(0.35, 1.0, t)), smoothstep(0.0, 0.4, t));
+
+  /* Doppler ışıması: yaklaşan taraf çok daha parlak + mavimsi */
+  vec3 tangent = normalize(vec3(-p.z, 0.0, p.x));
+  float beta = 0.55 / sqrt(max(r, 1.2));
+  float dop = 1.0 / (1.0 - beta * dot(tangent, -rd));
+  float boost = pow(clamp(dop, 0.35, 2.6), 3.0);
+  col *= boost;
+  col = mix(col, col * vec3(0.85, 0.95, 1.25), clamp((dop - 1.0) * 1.6, 0.0, 0.5));
+
+  /* iç kenar akkor çizgisi */
+  col += vec3(1.4, 1.1, 0.75) * smoothstep(0.09, 0.0, t) * 1.6;
+
+  /* madencilik halkası vurgusu */
+  float mineR = mix(DISK_OUT - 0.8, DISK_IN + 0.25, uOrbit);
+  float ring = smoothstep(0.30, 0.03, abs(r - mineR));
+  col += vec3(0.45, 0.85, 1.0) * ring * (0.35 + 0.65 * uFlash + 0.12 * sin(uTime * 6.0));
+
+  alpha = clamp(density * 1.35, 0.0, 1.0);
+  return col * (0.35 + density * 1.3);
+}
+
+void main() {
+  vec2 frag = gl_FragCoord.xy;
+  vec2 uv = (frag * 2.0 - uRes) / min(uRes.x, uRes.y);
+
+  /* ---- kamera: diskin hafif üstünde, film karesi gibi ---- */
+  float yaw = uCamYaw + uTime * 0.012;
+  float pitch = 0.16 + uCamPitch;
+  float camR = 16.5;
+  vec3 ro = vec3(cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)) * camR;
+  vec3 fwd = normalize(-ro);
+  vec3 rgt = normalize(cross(fwd, vec3(0.0, 1.0, 0.0)));
+  vec3 up  = cross(rgt, fwd);
+  vec3 rd = normalize(fwd * 1.35 + rgt * uv.x + up * uv.y);
+
+  /* ---- jeodezik entegrasyonu ---- */
+  vec3 p = ro;
+  vec3 v = rd;
+  vec3 hvec = cross(p, v);
+  float h2 = dot(hvec, hvec);
+
+  vec3 col = vec3(0.0);
+  float trans = 1.0;      /* kalan geçirgenlik */
+  bool captured = false;
+
+  float prevY = p.y;
+  vec3 prevP = p;
+
+  const int MAXS = 220;
+  for (int i = 0; i < MAXS; i++) {
+    if (float(i) >= uSteps) break;
+
+    float r2 = dot(p, p);
+    float r = sqrt(r2);
+
+    /* adım boyu: yakında küçük, uzakta büyük */
+    float dt = clamp(r * 0.10, 0.035, 0.55);
+
+    /* foton jeodeziği yaklaşımı: a = -1.5 h² r̂ / r⁴ */
+    vec3 acc = -1.5 * h2 * p / (r2 * r2 * r);
+    v += acc * dt;
+    p += v * dt;
+
+    /* olay ufkuna düştü */
+    if (dot(p, p) < RS * RS) { captured = true; break; }
+
+    /* disk düzlemi kesişimi (y=0) */
+    if (prevY * p.y < 0.0) {
+      float f = prevY / (prevY - p.y);
+      vec3 hit = mix(prevP, p, f);
+      float hr = length(hit.xz);
+      if (hr > DISK_IN && hr < DISK_OUT) {
+        float a;
+        vec3 dcol = diskShade(hit, normalize(v), a);
+        col += dcol * a * trans;
+        trans *= (1.0 - a * 0.9);
+        if (trans < 0.02) break;
+      }
+    }
+    prevY = p.y;
+    prevP = p;
+
+    if (dot(p, p) > 1500.0) break;  /* kaçtı */
+  }
+
+  if (!captured) {
+    col += stars(normalize(v)) * trans;
+  }
+
+  /* foton halkası parıltısı (ekran uzayı yaklaşımı) */
+  float b = length(cross(ro, rd)) / 1.0;   /* çarpma parametresi */
+  float pr = abs(b - 2.6);
+  col += vec3(1.0, 0.75, 0.45) * exp(-pr * pr * 9.0) * 0.5;
+
+  /* ton eşleme + vinyet */
+  col = col / (col + 0.85);
+  col = pow(col, vec3(0.86));
+  float vig = 1.0 - 0.35 * dot(uv * 0.55, uv * 0.55);
+  col *= vig;
+
+  /* aşırı ısınma kenar kızarması */
+  float edge = smoothstep(0.5, 1.4, length(uv));
+  col = mix(col, vec3(0.9, 0.12, 0.04), edge * uHeat * 0.55);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    throw new Error(gl.getShaderInfoLog(s));
+  }
+  return s;
+}
+
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+  throw new Error(gl.getProgramInfoLog(prog));
+}
+gl.useProgram(prog);
+
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, "aPos");
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+const U = {};
+for (const n of ["uRes","uTime","uCamYaw","uCamPitch","uOrbit","uFlash","uHeat","uSteps"]) {
+  U[n] = gl.getUniformLocation(prog, n);
+}
+
+/* ---- uyarlanabilir kalite ---- */
+let renderScale = Math.min(window.devicePixelRatio || 1, 2) * 0.65;
+let steps = 150;
+let frameMs = 16;
+
+function resize() {
+  const w = Math.max(1, Math.round(innerWidth * renderScale));
+  const h = Math.max(1, Math.round(innerHeight * renderScale));
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+    gl.viewport(0, 0, w, h);
+  }
+}
+window.addEventListener("resize", resize);
+resize();
+
+/* ================================================================
+   OYUN DURUMU
+   ================================================================ */
+const SAVE_KEY = "gargantua-mining-v1";
+
+const state = {
+  em: 0,             // egzotik madde
+  totalEm: 0,
+  tapLevel: 0,       // lazer
+  droneLevel: 0,
+  coolLevel: 0,
+  refLevel: 0,       // rafineri
+  heat: 0,
+  overheated: 0,     // kalan soğuma süresi (sn)
+  orbit: 0.2,        // 0..1
+  earthSeconds: 0,   // zaman genleşmesiyle "Dünya'da geçen" süre
+  lastSeen: Date.now(),
+};
+
+const UPGRADES = [
+  {
+    key: "tapLevel", icon: "🔦", name: "MADEN LAZERİ",
+    desc: "Dokunuş başına hasat gücü. Her seviye +%60 verim.",
+    base: 15, growth: 1.55,
+    stat: (l) => `Dokunuş: ${fmt(tapYield())} EM`,
+  },
+  {
+    key: "droneLevel", icon: "🛰", name: "RANGER DRONU",
+    desc: "Otonom hasat dronu. Sen bakmasan da disk üstünde madde toplar.",
+    base: 40, growth: 1.6,
+    stat: (l) => `Otomatik: ${fmt(droneRate())} EM/sn`,
+  },
+  {
+    key: "coolLevel", icon: "❄️", name: "SOĞUTMA SİSTEMİ",
+    desc: "Isı dağıtımını hızlandırır, alçak yörüngede daha uzun kalırsın.",
+    base: 60, growth: 1.7,
+    stat: (l) => `Soğutma: ${(coolRate()).toFixed(1)}/sn`,
+  },
+  {
+    key: "refLevel", icon: "⚗️", name: "RAFİNERİ",
+    desc: "Toplanan ham maddeyi işler. Tüm gelire kalıcı ×1.25 çarpan.",
+    base: 200, growth: 2.1,
+    stat: (l) => `Çarpan: ×${refMult().toFixed(2)}`,
+  },
+];
+
+function upgCost(u) {
+  return Math.ceil(u.base * Math.pow(u.growth, state[u.key]));
+}
+function refMult() { return Math.pow(1.25, state.refLevel); }
+function orbitMult() { return 1 + state.orbit * 4; }        // yakın yörünge ×5'e kadar
+function tapYield() {
+  return Math.max(1, Math.round(1 * Math.pow(1.6, state.tapLevel) * orbitMult() * refMult()));
+}
+function droneRate() {
+  return state.droneLevel * Math.pow(1.5, Math.max(0, state.droneLevel - 1)) * orbitMult() * refMult() * 0.5;
+}
+function coolRate() { return 6 + state.coolLevel * 4; }
+function heatPerTap() { return 2.5 + state.orbit * 7; }
+function heatPerSec() { return droneRate() > 0 ? (0.6 + state.orbit * 3.2) : 0; }
+function dilation() {
+  // r = uzak(10 RS) .. yakın(1.15 RS) → 1/√(1 - RS/r)
+  const r = 10 - state.orbit * 8.85;
+  return 1 / Math.sqrt(1 - 1 / r);
+}
+
+function fmt(n) {
+  if (n < 1000) return Math.floor(n).toString();
+  const units = ["K", "M", "B", "T", "Kd"];
+  let u = -1;
+  while (n >= 1000 && u < units.length - 1) { n /= 1000; u++; }
+  return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0) + units[u];
+}
+
+/* ---- kaydet / yükle ---- */
+function save() {
+  state.lastSeen = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function load() {
+  let offline = 0;
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      Object.assign(state, s);
+      const away = Math.min((Date.now() - (s.lastSeen || Date.now())) / 1000, 8 * 3600);
+      if (away > 60 && droneRate() > 0) {
+        offline = droneRate() * away * 0.5;   // çevrimdışı %50 verim
+        state.em += offline;
+        state.totalEm += offline;
+      }
+    }
+  } catch (e) {}
+  return offline;
+}
+setInterval(save, 5000);
+window.addEventListener("pagehide", save);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+
+/* ================================================================
+   UI
+   ================================================================ */
+const $ = (id) => document.getElementById(id);
+const elEm = $("em"), elRate = $("rate"), elDilf = $("dilf"), elEarth = $("earth");
+const elHeat = $("heatbar"), elOver = $("overheat"), elOrbMult = $("orbmult");
+const drawer = $("drawer"), upgList = $("upgrades");
+
+$("openUpg").addEventListener("click", () => { drawer.classList.add("open"); renderUpgrades(); });
+$("closeUpg").addEventListener("click", () => drawer.classList.remove("open"));
+
+const orbitEl = $("orbit");
+orbitEl.value = String(Math.round(state.orbit * 100));
+orbitEl.addEventListener("input", () => {
+  state.orbit = orbitEl.value / 100;
+  elOrbMult.textContent = `×${orbitMult().toFixed(1)} verim`;
+});
+
+function renderUpgrades() {
+  upgList.innerHTML = "";
+  for (const u of UPGRADES) {
+    const lvl = state[u.key];
+    const cost = upgCost(u);
+    const row = document.createElement("div");
+    row.className = "upg";
+    row.innerHTML = `
+      <div class="icon">${u.icon}</div>
+      <div class="info">
+        <div class="name">${u.name} <span style="color:var(--amber-dim)">sv.${lvl}</span></div>
+        <div class="desc">${u.desc}</div>
+        <div class="lvl">${u.stat(lvl)}</div>
+      </div>
+      <button class="buy" ${state.em < cost ? "disabled" : ""}>▲ ${fmt(cost)}</button>`;
+    row.querySelector(".buy").addEventListener("click", () => {
+      const c = upgCost(u);
+      if (state.em >= c) {
+        state.em -= c;
+        state[u.key]++;
+        renderUpgrades();
+        updateHud();
+        save();
+        toast(`${u.icon} ${u.name} → seviye ${state[u.key]}`);
+      }
+    });
+    upgList.appendChild(row);
+  }
+}
+
+let toastTimer = 0;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function floatText(x, y, txt, crit) {
+  const f = document.createElement("div");
+  f.className = "float" + (crit ? " crit" : "");
+  f.textContent = txt;
+  f.style.left = x + "px";
+  f.style.top = y + "px";
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1200);
+}
+
+function updateHud() {
+  elEm.textContent = fmt(state.em);
+  elRate.textContent = `+${fmt(droneRate())} /sn`;
+  elDilf.textContent = `×${dilation().toFixed(2)}`;
+  const es = state.earthSeconds;
+  elEarth.textContent = "Dünya: " + (
+    es < 90 ? `${Math.floor(es)}sn` :
+    es < 5400 ? `${Math.floor(es / 60)}dk` :
+    es < 172800 ? `${(es / 3600).toFixed(1)}sa` :
+    `${(es / 86400).toFixed(1)} gün`
+  );
+  elHeat.style.height = Math.min(100, state.heat) + "%";
+  elOrbMult.textContent = `×${orbitMult().toFixed(1)} verim`;
+
+  /* çekmece açıkken satın alınabilirliği canlı tut */
+  if (drawer.classList.contains("open")) {
+    const btns = upgList.querySelectorAll(".buy");
+    UPGRADES.forEach((u, i) => {
+      if (btns[i]) btns[i].disabled = state.em < upgCost(u);
+    });
+  }
+}
+
+/* ================================================================
+   GİRDİ — dokun: madencilik / sürükle: kamera
+   ================================================================ */
+let camYaw = 0.6, camPitch = 0;
+let flash = 0;
+let pDown = null, dragging = false;
+
+canvas.addEventListener("pointerdown", (e) => {
+  pDown = { x: e.clientX, y: e.clientY, yaw: camYaw, pitch: camPitch, t: performance.now() };
+  dragging = false;
+});
+canvas.addEventListener("pointermove", (e) => {
+  if (!pDown) return;
+  const dx = e.clientX - pDown.x, dy = e.clientY - pDown.y;
+  if (Math.abs(dx) + Math.abs(dy) > 12) dragging = true;
+  if (dragging) {
+    camYaw = pDown.yaw + dx * 0.004;
+    camPitch = Math.max(-0.12, Math.min(0.5, pDown.pitch + dy * 0.002));
+  }
+});
+canvas.addEventListener("pointerup", (e) => {
+  if (pDown && !dragging) mine(e.clientX, e.clientY);
+  pDown = null;
+});
+canvas.addEventListener("pointercancel", () => { pDown = null; });
+
+function mine(x, y) {
+  if (state.overheated > 0) {
+    floatText(x, y, "SOĞUYOR…", false);
+    return;
+  }
+  const crit = Math.random() < 0.08;
+  const gain = tapYield() * (crit ? 5 : 1);
+  state.em += gain;
+  state.totalEm += gain;
+  state.heat += heatPerTap();
+  flash = 1;
+  floatText(x, y, (crit ? "KRİTİK +" : "+") + fmt(gain), crit);
+  if (navigator.vibrate) navigator.vibrate(crit ? 30 : 12);
+  checkOverheat();
+  updateHud();
+}
+
+function checkOverheat() {
+  if (state.heat >= 100 && state.overheated <= 0) {
+    state.overheated = 8;
+    elOver.style.display = "block";
+    toast("⚠ Gövde aşırı ısındı! Sistemler 8 saniyeliğine kapatıldı.");
+    if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+  }
+}
+
+/* ================================================================
+   ANA DÖNGÜ
+   ================================================================ */
+let last = performance.now();
+let hudAcc = 0, qualAcc = 0;
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  let dt = (now - last) / 1000;
+  last = now;
+  if (dt > 0.25) dt = 0.25;   // sekme arka plandayken sıçramayı önle
+
+  /* --- simülasyon --- */
+  if (state.overheated > 0) {
+    state.overheated -= dt;
+    state.heat = Math.max(0, state.heat - coolRate() * 2.2 * dt);
+    if (state.overheated <= 0) {
+      elOver.style.display = "none";
+      toast("✅ Sistemler tekrar çevrimiçi.");
+    }
+  } else {
+    const inc = droneRate() * dt;
+    state.em += inc;
+    state.totalEm += inc;
+    state.heat = Math.max(0, state.heat + (heatPerSec() - coolRate()) * dt);
+    checkOverheat();
+  }
+  state.earthSeconds += dt * dilation();
+  flash = Math.max(0, flash - dt * 3);
+
+  hudAcc += dt;
+  if (hudAcc > 0.2) { hudAcc = 0; updateHud(); }
+
+  /* --- uyarlanabilir kalite --- */
+  frameMs = frameMs * 0.92 + (dt * 1000) * 0.08;
+  qualAcc += dt;
+  if (qualAcc > 1.2) {
+    qualAcc = 0;
+    if (frameMs > 26 && (renderScale > 0.4 || steps > 70)) {
+      if (steps > 90) steps -= 20;
+      else renderScale = Math.max(0.4, renderScale - 0.08);
+      resize();
+    } else if (frameMs < 14 && renderScale < Math.min(window.devicePixelRatio || 1, 2) * 0.7) {
+      renderScale = Math.min(renderScale + 0.05, 1.4);
+      if (steps < 170) steps += 10;
+      resize();
+    }
+  }
+
+  /* --- render --- */
+  gl.uniform2f(U.uRes, canvas.width, canvas.height);
+  gl.uniform1f(U.uTime, now / 1000);
+  gl.uniform1f(U.uCamYaw, camYaw);
+  gl.uniform1f(U.uCamPitch, camPitch);
+  gl.uniform1f(U.uOrbit, state.orbit);
+  gl.uniform1f(U.uFlash, flash);
+  gl.uniform1f(U.uHeat, Math.min(1, state.heat / 100) * (state.overheated > 0 ? 1 : 0.7));
+  gl.uniform1f(U.uSteps, steps);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/* ================================================================
+   BAŞLANGIÇ
+   ================================================================ */
+const offlineGain = load();
+orbitEl.value = String(Math.round(state.orbit * 100));
+if (offlineGain > 0) {
+  const m = $("offlineMsg");
+  m.style.display = "block";
+  m.textContent = `🛰 Sen yokken dronların ${fmt(offlineGain)} EM topladı.`;
+}
+updateHud();
+
+$("startBtn").addEventListener("click", () => {
+  $("intro").classList.add("hide");
+  if (navigator.vibrate) navigator.vibrate(15);
+});
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
