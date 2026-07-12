@@ -50,7 +50,7 @@
     background: var(--glass);
     border: 1px solid var(--line); border-radius: 999px;
     font-size: 10px; letter-spacing: 1px; color: var(--mut);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    /* blur kaldırıldı: zayıf GPU'larda WebGL ile çakışıyordu */
   }
   #walletchip .dot {
     width: 7px; height: 7px; border-radius: 50%;
@@ -76,7 +76,7 @@
     background: linear-gradient(135deg, rgba(28,18,8,0.92), rgba(14,10,20,0.92));
     border: 1px solid var(--line);
     border-radius: 999px;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     box-shadow: 0 4px 30px rgba(0,0,0,0.6);
   }
   #claimpill .accr { display: flex; flex-direction: column; }
@@ -114,7 +114,7 @@
     color: var(--mut); font-family: inherit;
     font-size: 10px; letter-spacing: 2px; font-weight: 700;
     text-align: center;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    /* blur yok: koyu gradyan üstünde zaten görünmüyor */
   }
   .tab.active { color: var(--amber); border-color: rgba(255,190,110,0.45); background: var(--glass-hi); }
   .tab:active { transform: scale(0.97); }
@@ -217,7 +217,7 @@
     padding: 10px 16px;
     background: var(--glass); border: 1px solid var(--line); border-radius: 11px;
     font-size: 10.5px; line-height: 1.6; text-align: center;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    /* blur kaldırıldı: geçici öğe, GPU katmanı açmaya değmez */
     opacity: 0; transition: opacity 0.3s; pointer-events: none;
   }
   #toast.show { opacity: 1; }
@@ -522,32 +522,46 @@ function compile(type, src) {
   if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
   return s;
 }
-const prog = gl.createProgram();
-gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
-gl.linkProgram(prog);
-if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
-gl.useProgram(prog);
+/* GL kaynakları context kaybında yeniden kurulabilsin diye fonksiyonda */
+let U = {};
+function setupGL() {
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
 
-const buf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-const aPos = gl.getAttribLocation(prog, "aPos");
-gl.enableVertexAttribArray(aPos);
-gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, "aPos");
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-const U = {};
-for (const n of ["uRes","uTime","uCamYaw","uCamPitch","uBands","uEvent","uClaim","uSteps"])
-  U[n] = gl.getUniformLocation(prog, n);
+  U = {};
+  for (const n of ["uRes","uTime","uCamYaw","uCamPitch","uBands","uEvent","uClaim","uSteps"])
+    U[n] = gl.getUniformLocation(prog, n);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+setupGL();
+
+/* telefonda GPU sıfırlanırsa (bellek baskısı vb.) canvas donup kalmasın:
+   kaybı yut, geri gelince pipeline'ı yeniden kur */
+canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); });
+canvas.addEventListener("webglcontextrestored", () => {
+  renderScale = Math.min(renderScale, 0.55);   /* daha temkinli devam et */
+  setupGL();
+  resize();
+});
 
 let renderScale = Math.min(window.devicePixelRatio || 1, 2) * 0.65;
 let steps = 150, frameMs = 16;
 function resize() {
   const w = Math.max(1, Math.round(innerWidth * renderScale));
   const h = Math.max(1, Math.round(innerHeight * renderScale));
-  if (canvas.width !== w || canvas.height !== h) {
-    canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h);
-  }
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  gl.viewport(0, 0, canvas.width, canvas.height);
 }
 window.addEventListener("resize", resize);
 resize();
@@ -930,6 +944,12 @@ canvas.addEventListener("pointercancel", () => { pDown = null; });
    ================================================================ */
 let last = performance.now();
 let hudAcc = 0, qualAcc = 0, panelAcc = 0;
+let frameParity = false;
+
+/* arka plandan dönüşte görüntüyü tazele */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { last = performance.now(); resize(); }
+});
 
 function loop(now) {
   requestAnimationFrame(loop);
@@ -981,7 +1001,15 @@ function loop(now) {
     }
   }
 
-  /* --- kuşak doluluk yoğunlukları --- */
+  /* --- render --- */
+  if (gl.isContextLost()) return;   /* restored olayında kaldığı yerden sürer */
+
+  /* panel açıkken GPU'yu rahatlat: kare atlat + adım sınırla
+     (zayıf telefonlarda panel + shader çakışması donmaya yol açıyordu) */
+  const sheetOpen = sheet.classList.contains("open");
+  frameParity = !frameParity;
+  if (sheetOpen && frameParity) return;
+
   const occ = [0, 0, 0, 0];
   for (const rig of state.rigs) {
     if (rig.status !== "damaged") occ[rig.band] = Math.min(1, occ[rig.band] + 0.4);
@@ -994,7 +1022,7 @@ function loop(now) {
   gl.uniform4f(U.uBands, occ[0], occ[1], occ[2], occ[3]);
   gl.uniform1f(U.uEvent, eventFlash);
   gl.uniform1f(U.uClaim, claimWave);
-  gl.uniform1f(U.uSteps, steps);
+  gl.uniform1f(U.uSteps, sheetOpen ? Math.min(steps, 100) : steps);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
