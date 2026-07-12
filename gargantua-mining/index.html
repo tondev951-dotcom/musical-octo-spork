@@ -386,6 +386,47 @@ vec3 stars(vec3 rd){
   return col;
 }
 float wrapPi(float x){return mod(x+3.14159265,6.2831853)-3.14159265;}
+
+/* ================= ENDURANCE =================
+   12 modüllü dönen halka istasyon — SDF modeli */
+float sdBox(vec3 p, vec3 b){vec3 d=abs(p)-b;return length(max(d,0.0))+min(max(d.x,max(d.y,d.z)),0.0);}
+#define SHIP_SECT 0.5235988   /* 2π/12 */
+vec3 shipFold(vec3 q){
+  vec2 pol=vec2(length(q.xy),atan(q.y,q.x));
+  pol.y=mod(pol.y+SHIP_SECT*0.5,SHIP_SECT)-SHIP_SECT*0.5;
+  return vec3(pol.x*cos(pol.y),pol.x*sin(pol.y),q.z);
+}
+float shipSDF(vec3 q){
+  vec3 pr=shipFold(q);
+  /* modüller: halka üstünde teğet kutular */
+  float d=sdBox(pr-vec3(1.0,0.0,0.0),vec3(0.13,0.19,0.11));
+  /* bağlantı kafesi (ince torus) */
+  d=min(d,length(vec2(length(q.xy)-1.0,q.z))-0.035);
+  /* merkez göbek */
+  d=min(d,sdBox(q,vec3(0.16,0.16,0.10)));
+  /* 4 ana kiriş */
+  vec2 p2=vec2(length(q.xy),atan(q.y,q.x));
+  p2.y=mod(p2.y+0.7853982,1.5707963)-0.7853982;
+  vec3 sp=vec3(p2.x*cos(p2.y),p2.x*sin(p2.y),q.z);
+  d=min(d,sdBox(sp-vec3(0.5,0.0,0.0),vec3(0.5,0.028,0.028)));
+  return d;
+}
+/* gemi konumu ve yönelimi (yörünge + kendi ekseninde dönüş) */
+vec3 shipPos(){float a=uTime*0.026;return vec3(cos(a)*11.6,1.7,sin(a)*11.6);}
+void shipBasis(out vec3 u,out vec3 v,out vec3 n){
+  n=normalize(vec3(0.30,1.0,0.18));
+  vec3 u0=normalize(cross(n,vec3(0.0,0.0,1.0)));
+  vec3 v0=cross(n,u0);
+  float s=uTime*0.42;                 /* yapay yerçekimi dönüşü */
+  u=u0*cos(s)+v0*sin(s);
+  v=-u0*sin(s)+v0*cos(s);
+}
+#define SHIP_SCALE 0.62
+float shipWorldSDF(vec3 wp, vec3 sp, vec3 u, vec3 v, vec3 n){
+  vec3 rel=wp-sp;
+  vec3 q=vec3(dot(rel,u),dot(rel,v),dot(rel,n))/SHIP_SCALE;
+  return shipSDF(q)*SHIP_SCALE;
+}
 float bandR(int k){if(k==0)return 8.0;if(k==1)return 6.2;if(k==2)return 4.4;return 3.05;}
 vec3 bandTint(int k){
   if(k==0)return vec3(0.35,0.95,0.65);
@@ -457,16 +498,65 @@ void main(){
   vec3 rgt=normalize(cross(fwd,vec3(0.,1.,0.)));
   vec3 up=cross(rgt,fwd);
   vec3 rd=normalize(fwd*1.35+rgt*uv.x+up*uv.y);
+  vec3 col=vec3(0.0);
+
+  /* ---- ENDURANCE: düz ışınla kesişim (uzak yörüngede bükülme ihmal) ---- */
+  vec3 sp=shipPos();
+  vec3 su,sv,sn; shipBasis(su,sv,sn);
+  bool shipDrawn=false;
+  {
+    vec3 oc=ro-sp;
+    float tb=-dot(oc,rd);
+    float bnd=1.55*SHIP_SCALE;
+    if(tb>0.0 && dot(oc,oc)-tb*tb<bnd*bnd){
+      /* gemiye giden hat kara deliğe çok yaklaşıyorsa çizme (mercekleme bölgesi) */
+      float ct=clamp(dot(-ro,rd),0.0,tb);
+      if(length(ro+rd*ct)>3.4){
+        float tm=max(tb-bnd,0.0);
+        for(int i=0;i<48;i++){
+          vec3 wp=ro+rd*tm;
+          float d=shipWorldSDF(wp,sp,su,sv,sn);
+          if(d<0.004){
+            /* normal (tetrahedron gradyanı) */
+            vec2 e=vec2(0.006,-0.006);
+            vec3 nrm=normalize(
+              vec3(e.x,e.y,e.y)*shipWorldSDF(wp+vec3(e.x,e.y,e.y),sp,su,sv,sn)+
+              vec3(e.y,e.y,e.x)*shipWorldSDF(wp+vec3(e.y,e.y,e.x),sp,su,sv,sn)+
+              vec3(e.y,e.x,e.y)*shipWorldSDF(wp+vec3(e.y,e.x,e.y),sp,su,sv,sn)+
+              vec3(e.x,e.x,e.x)*shipWorldSDF(wp+vec3(e.x,e.x,e.x),sp,su,sv,sn));
+            /* ışık: diskten gelen sıcak aydınlatma + soğuk uzay dolgusu */
+            vec3 ldir=normalize(-sp);
+            float ndl=max(dot(nrm,ldir),0.0);
+            vec3 base=vec3(0.62,0.60,0.58);
+            col=base*(0.17+0.95*ndl)*vec3(1.25,0.95,0.68)
+               +base*max(dot(nrm,vec3(0.0,1.0,0.0)),0.0)*vec3(0.12,0.14,0.22)
+               +base*pow(max(dot(nrm,-rd),0.0),2.0)*0.06;
+            /* modül içi mavi motor/pencere ışıması */
+            vec3 rel=wp-sp;
+            vec3 q=vec3(dot(rel,su),dot(rel,sv),dot(rel,sn))/SHIP_SCALE;
+            vec3 pr=shipFold(q);
+            float win=smoothstep(0.10,0.02,abs(pr.z))*smoothstep(0.90,0.84,pr.x)*step(0.78,pr.x);
+            col+=vec3(0.55,0.75,1.6)*win*1.4;
+            shipDrawn=true;
+            break;
+          }
+          tm+=max(d,0.003);
+          if(tm>tb+bnd)break;
+        }
+      }
+    }
+  }
+
   vec3 p=ro,v=rd;
   vec3 hvec=cross(p,v);
   float h2=dot(hvec,hvec);
-  vec3 col=vec3(0.0);
   float trans=1.0;
   bool captured=false;
   float prevY=p.y;
   vec3 prevP=p;
   const int MAXS=220;
   for(int i=0;i<MAXS;i++){
+    if(shipDrawn)break;
     if(float(i)>=uSteps)break;
     float r2=dot(p,p);
     float r=sqrt(r2);
@@ -500,11 +590,11 @@ void main(){
     prevY=p.y;prevP=p;
     if(dot(p,p)>1500.0)break;
   }
-  if(!captured)col+=stars(normalize(v))*trans;
+  if(!captured&&!shipDrawn)col+=stars(normalize(v))*trans;
 
   /* foton halkası: gölgeyi saran ince, hafif vurgu — gölgenin içine taşmaz
      (ana görüntü ışın izlemeden gelir, bu sadece tuz-biber) */
-  if(!captured){
+  if(!captured&&!shipDrawn){
     float b=length(cross(ro,rd));
     float pr=abs(b-2.6);
     col+=vec3(1.4,1.15,0.88)*exp(-pr*pr*30.0)*0.30;
@@ -1526,7 +1616,10 @@ connBtn.addEventListener("click", () => {
 });
 
 /* dev modunda test kancası */
-if (SPEED > 1) { window.__state = state; window.__save = save; window.__refresh = refreshHud; }
+if (SPEED > 1) {
+  window.__state = state; window.__save = save; window.__refresh = refreshHud;
+  window.__setCam = (y, p) => { camYaw = y; camPitch = p || 0; };
+}
 
 requestAnimationFrame(loop);
 </script>
