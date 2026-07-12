@@ -393,46 +393,59 @@ vec3 bandTint(int k){
   if(k==2)return vec3(0.66,0.55,1.00);
   return vec3(1.00,0.45,0.55);
 }
+/* akkor disk rengi: iç = kremsi beyaz, dış = derin turuncu (kara cisim hissi) */
+vec3 diskPalette(float t){
+  vec3 hot =vec3(1.75,1.62,1.42);
+  vec3 mid =vec3(1.62,1.05,0.55);
+  vec3 cool=vec3(0.95,0.42,0.14);
+  return mix(hot,mix(mid,cool,smoothstep(0.30,1.0,t)),smoothstep(0.0,0.45,t));
+}
 vec3 diskShade(vec3 p, vec3 rd, out float alpha){
   float r=length(p.xz);
   float t=clamp((r-DISK_IN)/(DISK_OUT-DISK_IN),0.0,1.0);
   float omega=1.6/(pow(r,1.5)+0.2);
   float theta=atan(p.z,p.x);
   float ang=theta-uTime*omega;
-  float bands=fbm(vec2(r*3.0,ang*5.0));
-  float streaks=fbm(vec2(r*9.0-uTime*0.15,ang*14.0));
-  float density=bands*0.7+streaks*0.5;
-  density*=smoothstep(1.0,0.75,t);
-  density*=smoothstep(0.0,0.12,t)+0.35;
-  vec3 hot=vec3(1.35,1.22,1.05);
-  vec3 mid=vec3(1.30,0.72,0.28);
-  vec3 cool=vec3(0.55,0.18,0.05);
-  vec3 col=mix(hot,mix(mid,cool,smoothstep(0.35,1.0,t)),smoothstep(0.0,0.4,t));
+
+  /* Novikov-Thorne benzeri yüzey parlaklığı: içte akkor, dışa doğru sönüm */
+  float sb=pow(DISK_IN/r,1.55);
+  sb*=smoothstep(0.0,0.045,t)*1.35+0.12;     /* iç kenar keskin ve parlak */
+  sb*=smoothstep(1.0,0.70,t);                 /* dış kenar yumuşak sönüm */
+
+  /* pürüzsüz, düşük frekanslı gaz iplikçikleri (grensiz) */
+  float pat=0.72
+    +0.22*fbm(vec2(r*2.2,ang*6.0))
+    +0.14*fbm(vec2(r*4.5-uTime*0.08,ang*10.0))*smoothstep(0.05,0.35,t);
+
+  vec3 col=diskPalette(t)*sb*pat*3.4;
+
+  /* göreli Doppler ışıması: yaklaşan taraf çok daha parlak ve beyaz-mavi */
   vec3 tangent=normalize(vec3(-p.z,0.0,p.x));
   float beta=0.55/sqrt(max(r,1.2));
   float dop=1.0/(1.0-beta*dot(tangent,-rd));
-  float boost=pow(clamp(dop,0.35,2.6),3.0);
-  col*=boost;
-  col=mix(col,col*vec3(0.85,0.95,1.25),clamp((dop-1.0)*1.6,0.0,0.5));
-  col+=vec3(1.4,1.1,0.75)*smoothstep(0.09,0.0,t)*1.6;
+  col*=pow(clamp(dop,0.30,3.2),4.0)*0.55;
+  col=mix(col,col*vec3(0.88,0.97,1.22),clamp((dop-1.0)*1.8,0.0,0.6));
+
+  /* ---- maden kuşağı katmanı (oyun) — gerçekçiliği bozmayacak kadar hafif ---- */
   for(int k=0;k<4;k++){
     float occ=uBands[k];
     if(occ<0.01)continue;
     float R=bandR(k);
     vec3 tint=bandTint(k);
-    float ring=smoothstep(0.34,0.06,abs(r-R));
-    col+=tint*ring*occ*(0.28+0.10*sin(uTime*3.0+float(k)));
+    float ring=smoothstep(0.30,0.05,abs(r-R));
+    col+=tint*ring*occ*(0.16+0.06*sin(uTime*3.0+float(k)));
     float om=1.6/(pow(R,1.5)+0.2);
     for(int j=0;j<3;j++){
       float a0=uTime*om*1.9+float(j)*2.094+float(k)*0.8;
       float dth=wrapPi(theta-a0);
-      float g=exp(-dth*dth*90.0)*exp(-(r-R)*(r-R)*26.0);
-      col+=(tint*1.6+0.6)*g*occ;
+      float g=exp(-dth*dth*110.0)*exp(-(r-R)*(r-R)*30.0);
+      col+=(tint*1.5+0.7)*g*occ;
     }
-    col+=tint*ring*uClaim*1.4;
+    col+=tint*ring*uClaim*1.2;
   }
-  alpha=clamp(density*1.35,0.0,1.0);
-  return col*(0.35+density*1.3);
+
+  alpha=clamp(sb*(0.8+0.5*pat),0.0,1.0);
+  return col;
 }
 void main(){
   vec2 uv=(gl_FragCoord.xy*2.0-uRes)/min(uRes.x,uRes.y);
@@ -461,6 +474,17 @@ void main(){
     vec3 acc=-1.5*h2*p/(r2*r2*r);
     v+=acc*dt;p+=v*dt;
     if(dot(p,p)<RS*RS){captured=true;break;}
+
+    float rr=length(p.xz);
+    /* hacimsel ışıma halesi: diskin üstünde/altında yumuşak sıcak parlama
+       (filmdeki kremsi glow) */
+    if(rr>DISK_IN*0.75&&rr<DISK_OUT*1.1){
+      float tg=clamp((rr-DISK_IN)/(DISK_OUT-DISK_IN),0.0,1.0);
+      float glow=exp(-abs(p.y)*2.6)*pow(DISK_IN/max(rr,DISK_IN),2.0);
+      glow*=smoothstep(1.15,2.1,r);   /* ufka dalan ışınlar gölgeyi kirletmesin */
+      col+=diskPalette(tg)*glow*dt*0.11*trans;
+    }
+
     if(prevY*p.y<0.0){
       float f=prevY/(prevY-p.y);
       vec3 hit=mix(prevP,p,f);
@@ -469,7 +493,7 @@ void main(){
         float a;
         vec3 dcol=diskShade(hit,normalize(v),a);
         col+=dcol*a*trans;
-        trans*=(1.0-a*0.9);
+        trans*=(1.0-a*0.85);
         if(trans<0.02)break;
       }
     }
@@ -477,12 +501,20 @@ void main(){
     if(dot(p,p)>1500.0)break;
   }
   if(!captured)col+=stars(normalize(v))*trans;
-  float b=length(cross(ro,rd));
-  float pr=abs(b-2.6);
-  col+=vec3(1.0,0.75,0.45)*exp(-pr*pr*9.0)*0.5;
-  col=col/(col+0.85);
-  col=pow(col,vec3(0.86));
-  col*=1.0-0.35*dot(uv*0.55,uv*0.55);
+
+  /* foton halkası: gölgeyi saran ince, hafif vurgu — gölgenin içine taşmaz
+     (ana görüntü ışın izlemeden gelir, bu sadece tuz-biber) */
+  if(!captured){
+    float b=length(cross(ro,rd));
+    float pr=abs(b-2.6);
+    col+=vec3(1.4,1.15,0.88)*exp(-pr*pr*30.0)*0.30;
+  }
+
+  /* yumuşak öz-parlama (ucuz bloom yaklaşımı) + ACES ton eşleme */
+  col+=col*col*0.06;
+  col=clamp((col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14),0.0,1.0);
+  col=pow(col,vec3(0.92));
+  col*=1.0-0.30*dot(uv*0.55,uv*0.55);
   float edge=smoothstep(0.5,1.4,length(uv));
   col=mix(col,vec3(0.9,0.1,0.05),edge*uEvent*0.6);
   gl_FragColor=vec4(col,1.0);
