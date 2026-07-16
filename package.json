@@ -1,0 +1,25 @@
+{
+  "name": "book-of-anubis",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Casino-grade Egyptian-themed slot game built with Phaser 3. Pure math core + Monte Carlo verification.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "simulate": "tsx src/sim/simulate.ts",
+    "calc": "tsx src/sim/rtpCalc.ts",
+    "tune": "tsx src/sim/tune.ts"
+  },
+  "dependencies": {
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "tsx": "^4.16.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
